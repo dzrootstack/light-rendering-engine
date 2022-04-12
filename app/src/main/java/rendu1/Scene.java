@@ -39,49 +39,53 @@ public class Scene {
     public Scene(String filename) throws Exception {
 
         BufferedReader in = new BufferedReader(new FileReader(filename));
+        // get directory of the scene file
+        String dir = filename.substring(0, filename.lastIndexOf("/") + 1);
 
         meshFilename = nextLine(in);
+        // concatenate the scene file directory and the mesh file name
+        meshFilename = dir + meshFilename;
 
         String r = nextLine(in);
         String[] sar = r.split("\\s+");
-        cameraPosition.set(new Double(sar[0]).doubleValue(),
-                new Double(sar[1]).doubleValue(),
-                new Double(sar[2]).doubleValue());
+        cameraPosition.set(Double.valueOf(sar[0]).doubleValue(),
+                Double.valueOf(sar[1]).doubleValue(),
+                Double.valueOf(sar[2]).doubleValue());
 
         r = nextLine(in);
         sar = r.split("\\s+");
-        cameraLookAt.set(new Double(sar[0]).doubleValue(),
-                new Double(sar[1]).doubleValue(),
-                new Double(sar[2]).doubleValue());
+        cameraLookAt.set(Double.valueOf(sar[0]).doubleValue(),
+                Double.valueOf(sar[1]).doubleValue(),
+                Double.valueOf(sar[2]).doubleValue());
 
         r = nextLine(in);
         sar = r.split("\\s+");
-        cameraUp.set(new Double(sar[0]).doubleValue(),
-                new Double(sar[1]).doubleValue(),
-                new Double(sar[2]).doubleValue());
+        cameraUp.set(Double.valueOf(sar[0]).doubleValue(),
+                Double.valueOf(sar[1]).doubleValue(),
+                Double.valueOf(sar[2]).doubleValue());
 
         r = nextLine(in);
-        cameraFocal = new Double(r).doubleValue();
+        cameraFocal = Double.valueOf(r).doubleValue();
 
         r = nextLine(in);
         sar = r.split("\\s+");
-        screenW = new Integer(sar[0]).intValue();
-        screenH = new Integer(sar[1]).intValue();
+        screenW = Integer.valueOf(sar[0]).intValue();
+        screenH = Integer.valueOf(sar[1]).intValue();
 
         r = nextLine(in);
-        ambientI = new Double(r).doubleValue();
+        ambientI = Double.valueOf(r).doubleValue();
 
         r = nextLine(in);
         sar = r.split("\\s+");
         for (int i = 0; i < sourceCoord.length; i++) {
-            sourceCoord[i] = new Double(sar[i]).doubleValue();
+            sourceCoord[i] = Double.valueOf(sar[i]).doubleValue();
         }
-        sourceI = new Double(sar[3]).doubleValue();
+        sourceI = Double.valueOf(sar[3]).doubleValue();
 
         r = nextLine(in);
         sar = r.split("\\s+");
         for (int i = 0; i < material.length; i++) {
-            material[i] = new Double(sar[i]).doubleValue();
+            material[i] = Double.valueOf(sar[i]).doubleValue();
         }
     }
 

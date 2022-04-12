@@ -13,7 +13,7 @@ public class TestMesh {
 
         System.out.println("OFF\n# Test Start");
 
-        Mesh mesh = new Mesh("data/cube_multi_color.off");
+        Mesh mesh = new Mesh("cube_multi_color.off");
         // Transform rend = new Transform();
 
         Vector[] vertices = mesh.getVertices();

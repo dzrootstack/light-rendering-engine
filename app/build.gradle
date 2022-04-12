@@ -26,10 +26,11 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'rendu1.App'
+    mainClass = 'rendu1.Renderer'
 }
 
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+

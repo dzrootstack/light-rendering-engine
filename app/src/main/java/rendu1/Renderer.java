@@ -134,16 +134,27 @@ public class Renderer {
 
     public static void main(String[] args) {
 
-        if (args.length == 0) {
-            System.out.println("usage: java Renderer <scene_file>");
-        } else {
-            try {
-                init(args[0]);
-            } catch (Exception e) {
-                System.out.println("Problem initializing Renderer: " + e);
-                e.printStackTrace();
-                return;
-            }
+        // if (args.length == 0) {
+        // System.out.println("usage: java Renderer <scene_file>");
+        // } else {
+        // try {
+        // init(args[0]);
+        // } catch (Exception e) {
+        // System.out.println("Problem initializing Renderer: " + e);
+        // e.printStackTrace();
+        // return;
+        // }
+        // }
+
+        try {
+            // get current directory
+            String currentDir = System.getProperty("user.dir");
+            System.out.println("Current working directory : " + currentDir);
+            init("./src/main/resources/example0.scene");
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            System.out.println("Problem initializing Renderer: " + e);
+            e.printStackTrace();
         }
 
         /* wireframe rednering */
@@ -174,7 +185,7 @@ public class Renderer {
         /*
          * screen.clearBuffer ();
          * TextureShader texShader = new TextureShader (screen);
-         * texShader.setTexture ("data/brick.jpg");
+         * texShader.setTexture ("brick.jpg");
          * shader = texShader;
          * rasterizer.setShader (texShader);
          * setLightingEnabled (true);
