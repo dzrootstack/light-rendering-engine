@@ -71,11 +71,11 @@ public class Lighting {
                     try {
                         /* vector from point to camera center */
                         Vector3 e = new Vector3(cameraPosition);
-                        e.subtract(position);
+                        e.sub(position);
                         e.normalize();
                         /* vector from point to light */
                         Vector3 l = new Vector3(light.params[0], light.params[1], light.params[2]);
-                        l.subtract(position);
+                        l.sub(position);
                         l.normalize();
                         /* half-vector between e and l */
                         Vector3 h = new Vector3(e);

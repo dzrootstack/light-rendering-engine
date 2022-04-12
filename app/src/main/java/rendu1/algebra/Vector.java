@@ -97,7 +97,7 @@ public class Vector implements Cloneable {
     /**
      * Subtracts the given Vector to the Vector
      */
-    public void subtract(Vector v) throws SizeMismatchException {
+    public void sub(Vector v) throws SizeMismatchException {
         if (size != v.size) {
             throw new SizeMismatchException(this, v);
         }

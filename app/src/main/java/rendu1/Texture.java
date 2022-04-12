@@ -30,7 +30,7 @@ public class Texture {
      */
     public Color sample(double u, double v) {
 
-        /* A COMPLETER */
+        // TODO
 
         return new Color(0, 0, 0);
     }

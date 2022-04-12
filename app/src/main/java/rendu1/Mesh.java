@@ -126,7 +126,7 @@ public class Mesh {
         try {
             for (int i = 0; i < 3 * getNumFaces(); i += 3) {
 
-                /* A COMPLETER */
+                // TODO
 
                 Vector3 n = new Vector3(); // ?
 

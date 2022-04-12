@@ -29,22 +29,20 @@ public class Transformation {
         try {
             // compute rotation
 
-            /* A COMPLETER */
-
             // compute translation
 
-            /* A COMPLETER */
+            // TODO
 
         } catch (Exception e) {
-            /* unreached */ }
-        ;
+            /* unreached */
+        }
 
         System.out.println("Modelview matrix:\n" + worldToCamera);
     }
 
     public void setProjection() {
 
-        /* A COMPLETER */
+        // TODO
 
         System.out.println("Projection matrix:\n" + projection);
     }

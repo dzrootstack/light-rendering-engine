@@ -120,4 +120,5 @@ public class Vector3 extends Vector {
     public double getZ() {
         return this.values[2];
     }
+
 }

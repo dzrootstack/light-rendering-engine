@@ -188,7 +188,7 @@ public class Rasterizer {
 
         /* iterate over the triangle's bounding box */
 
-        /* A COMPLETER */
+        // TODO
 
     }
 }
