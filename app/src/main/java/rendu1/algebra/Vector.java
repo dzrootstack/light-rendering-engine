@@ -6,10 +6,60 @@
 
 package rendu1.algebra;
 
+import java.util.function.Consumer;
+
 public class Vector implements Cloneable {
+
+    public class ReadOnly {
+        Vector v;
+
+        public ReadOnly(Vector v) {
+            this.v = v;
+        }
+
+        public Vector sub(Vector w) {
+            return ReadOnly.passThrough(w, input -> {
+                try {
+                    input.sub(w);
+                } catch (SizeMismatchException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("Size mismatch in method Vector::sub");
+                }
+            });
+        }
+
+        public Vector add(Vector w) {
+            return ReadOnly.passThrough(w, input -> {
+                try {
+                    input.add(w);
+                } catch (SizeMismatchException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("Size mismatch in method Vector::add");
+                }
+            });
+        }
+
+        public Vector normalize() throws SizeMismatchException {
+            return ReadOnly.passThrough(v, input -> input.normalize());
+        }
+
+        public static Vector passThrough(Vector w, Consumer<Vector> lambda) {
+            Vector v1;
+            try {
+                v1 = (Vector) w.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Clone not supported");
+            }
+            lambda.accept(v1);
+            return v1;
+        }
+
+    }
 
     protected int size;
     protected double values[];
+    public ReadOnly readOnly = new ReadOnly(this);
     public String name = "v";
 
     protected Vector() {

@@ -29,13 +29,46 @@ public class Transformation {
         try {
             // compute rotation
 
+            worldToCamera = Matrix.createIdentity(4);
+            worldToCamera.setName("W2C");
+
+            Vector3 z = (Vector3) cam.readOnly.sub(lookAt).readOnly.normalize();
+            Vector3 x = (Vector3) up.cross(z).readOnly.normalize();
+            Vector3 y = z.cross(x);
+
+            worldToCamera.set(0, 0, x.getX());
+            worldToCamera.set(0, 1, x.getY());
+            worldToCamera.set(0, 2, x.getZ());
+            worldToCamera.set(1, 0, y.getX());
+            worldToCamera.set(1, 1, y.getY());
+            worldToCamera.set(1, 2, y.getZ());
+            worldToCamera.set(2, 0, z.getX());
+            worldToCamera.set(2, 1, z.getY());
+            worldToCamera.set(2, 2, z.getZ());
+
             // compute translation
 
-            // TODO
+            worldToCamera.set(0, 3, cam.getX());
+            worldToCamera.set(1, 3, cam.getY());
+            worldToCamera.set(2, 3, cam.getZ());
 
-        } catch (Exception e) {
-            /* unreached */
+            // compute projection
+
+            projection = Matrix.createIdentity(3);
+            projection.setName("P");
+            projection.set(0, 0, 1.0 / Math.tan(Math.toRadians(45.0 / 2.0)));
+            projection.set(1, 1, 1.0 / Math.tan(Math.toRadians(45.0 / 2.0)));
+            projection.set(2, 2, -1.0);
+            projection.set(2, 3, -1.0);
+            projection.set(3, 2, -1.0);
+            projection.set(3, 3, 0.0);
+        } catch (SizeMismatchException | InstantiationException e) {
+            /* should not reach */
         }
+
+        // compute translation
+
+        // TODO
 
         System.out.println("Modelview matrix:\n" + worldToCamera);
     }
