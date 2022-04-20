@@ -10,10 +10,14 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
+
+import rendu1.tasks.TaskMgr;
 
 class ImageComponent extends Component {
 
@@ -45,6 +49,8 @@ public class GraphicsWrapper {
   private int pixelSize = 0;
 
   private JFrame myFrame;
+  private KeyListener myKeyListener;
+  private TaskMgr taskMgr;
 
   private ImageComponent drawComp = null;
 
@@ -74,13 +80,32 @@ public class GraphicsWrapper {
     myFrame.add("Center", drawComp);
     myFrame.pack();
     myFrame.setVisible(true);
+
+    myKeyListener = new KeyListener() {
+
+      @Override
+      public void keyTyped(KeyEvent e) {
+      }
+
+      @Override
+      public void keyPressed(KeyEvent e) {
+        System.out.println("Key pressed: " + e.getKeyCode());
+      }
+
+      @Override
+      public void keyReleased(KeyEvent e) {
+        System.out.println("Key released: " + e.getKeyCode());
+      }
+    };
+    myFrame.addKeyListener(myKeyListener);
   }
 
   /**
    * Build a virtual screen of size width x height
    * And set its window visible.
    */
-  public GraphicsWrapper(int width, int height) {
+  public GraphicsWrapper(TaskMgr taskMgr, int width, int height) {
+    this.taskMgr = taskMgr;
     this.height = height;
     this.width = width;
     this.pixelSize = 1;
@@ -93,7 +118,8 @@ public class GraphicsWrapper {
    * a pixelSize x pixelSize square.
    * And set its window visible.
    */
-  public GraphicsWrapper(int width, int height, int pixelSize) {
+  public GraphicsWrapper(TaskMgr taskMgr, int width, int height, int pixelSize) {
+    this.taskMgr = taskMgr;
     this.height = height;
     this.width = width;
     this.pixelSize = pixelSize;

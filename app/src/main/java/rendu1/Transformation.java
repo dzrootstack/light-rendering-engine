@@ -70,14 +70,12 @@ public class Transformation {
 
     public void setProjection(double fov, double aspect, double near, double far) {
 
-        projection.set(0, 0, 1.0);
-        projection.set(1, 1, 1.0);
-        projection.set(2, 2, 1.0);
+        double e = 1 / Math.tan(fov / 2.0);
 
-        // projection.set(0, 0, 1.0 / Math.tan(fov / 2.0));
-        // projection.set(1, 1, projection.get(0, 0) / aspect);
-        // projection.set(2, 2, (far + near) / (near - far));
-        // projection.set(2, 3, 2.0 * far * near / (near - far));
+        projection.set(0, 0, e / aspect);
+        projection.set(1, 1, e);
+        projection.set(2, 2, -(far + near) / (near - far));
+        projection.set(2, 3, -2.0 * far * near / (near - far));
 
         if (verbose) {
             System.out.println("Projection matrix:\n" + projection);
@@ -124,6 +122,10 @@ public class Transformation {
         Matrix R = worldToCamera.getSubMatrix(0, 0, 3, 3);
         Vector tv = R.multiply(v);
         return new Vector3(tv);
+    }
+
+    public void setVerbose(boolean v) {
+        this.verbose = v;
     }
 
 }

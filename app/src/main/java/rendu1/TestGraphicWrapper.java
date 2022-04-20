@@ -22,7 +22,7 @@ public class TestGraphicWrapper {
     }
 
     static void init() {
-        screen = new GraphicsWrapper(width, height, 1);
+        screen = new GraphicsWrapper(null, width, height, 1);
     }
 
     static int countNeighbours(int x0, int y0) {

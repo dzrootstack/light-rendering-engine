@@ -1,8 +1,6 @@
 package rendu1;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.function.Consumer;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -10,6 +8,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import rendu1.algebra.SizeMismatchException;
 import rendu1.algebra.Vector;
 import rendu1.algebra.Vector3;
+import rendu1.tasks.Event;
+import rendu1.tasks.TaskMgr;
 
 /**
  * The Renderer class drives the rendering pipeline: read in a scene, projects
@@ -20,10 +20,10 @@ import rendu1.algebra.Vector3;
 public class Renderer {
 
     // camera settings
-    static double fov = Math.PI / 3;
-    static double near = 1.0;
+    static double fov = Math.PI / 2;
+    static double near = 0.1;
     static double far = 100.0;
-    static double aspect = 1.0;
+    static double aspect = 1;
 
     static Scene scene;
     static Mesh mesh;
@@ -32,8 +32,9 @@ public class Renderer {
     static Shader shader;
     static Transformation xform;
     static Lighting lighting;
+    static TaskMgr taskMgr;
     static boolean lightingEnabled;
-    static ArrayList<Consumer<Scene>> tasks;
+
     static boolean isRunning;
     static int frameRate = 60;
 
@@ -41,10 +42,10 @@ public class Renderer {
     public static int clock;
 
     static void init(String sceneFilename) throws Exception {
-        tasks = new ArrayList<Consumer<Scene>>();
+        taskMgr = new TaskMgr(scene);
         scene = new Scene(sceneFilename);
         mesh = new Mesh(scene.getMeshFileName());
-        screen = new GraphicsWrapper(scene.getScreenW(), scene.getScreenH());
+        screen = new GraphicsWrapper(taskMgr, scene.getScreenW(), scene.getScreenH());
         screen.clearBuffer();
         shader = new SimpleShader(screen);
         // shader = new PainterShader (screen);
@@ -62,6 +63,41 @@ public class Renderer {
         lighting.addAmbientLight(scene.getAmbientI());
         double[] lightCoord = scene.getSourceCoord();
         lighting.addPointLight(lightCoord[0], lightCoord[1], lightCoord[2], scene.getSourceI());
+    }
+
+    /**
+     * Renders the elements in the scene.
+     */
+    static void render() {
+        /* wireframe rendering */
+        renderWireframe();
+
+        /* solid rendering, no lighting */
+        // shader.reset();
+        // renderSolid();
+
+        /* solid rendering, with lighting */
+        /*
+         * screen.clearBuffer ();
+         * shader.reset ();
+         * setLightingEnabled (true);
+         * renderSolid ();
+         * screen.swapBuffers ();
+         * wait (3);
+         */
+
+        /* solid rendering, with texture */
+        /*
+         * screen.clearBuffer ();
+         * TextureShader texShader = new TextureShader (screen);
+         * texShader.setTexture ("brick.jpg");
+         * shader = texShader;
+         * rasterizer.setShader (texShader);
+         * setLightingEnabled (true);
+         * renderSolid ();
+         * screen.swapBuffers ();
+         * wait (3);
+         */
     }
 
     static Fragment[] projectVertices() {
@@ -103,10 +139,7 @@ public class Renderer {
                     fragments[i].setColor(litColor[0], litColor[1], litColor[2]);
                 }
             }
-        } catch (SizeMismatchException e) {
-            e.printStackTrace();
-            /* should not reach */
-        } catch (InstantiationException e) {
+        } catch (SizeMismatchException | InstantiationException e) {
             e.printStackTrace();
             /* should not reach */
         }
@@ -152,12 +185,6 @@ public class Renderer {
         }
     }
 
-    public static void runTasks() {
-        for (Consumer<Scene> task : tasks) {
-            task.accept(scene);
-        }
-    }
-
     public static void main(String[] args) {
 
         try {
@@ -186,25 +213,20 @@ public class Renderer {
 
         // add camera orbit task
         double camOrbitDist = 7;
-        tasks.add(scene -> {
-            // determine next camera pos using clock
+        taskMgr.addTask(Event.NEW_FRAME, scene -> {
+            // determine next camera pos (time-based)
             double t = clock / 100.0;
             Vector3 cameraPos = new Vector3(camOrbitDist * Math.sin(t), camOrbitDist, camOrbitDist * Math.cos(t));
             xform.setLookAt(cameraPos, scene.getCameraLookAt(), scene.getCameraUp());
         });
 
+        // main loop
         while (isRunning) {
+
             screen.clearBuffer();
-
-            /* wireframe rendering */
-            renderWireframe();
-
-            /* solid rendering, no lighting */
-            // shader.reset();
-            // renderSolid();
-
+            render();
             screen.swapBuffers();
-            runTasks();
+            taskMgr.triggerTasks(Event.NEW_FRAME, scene);
 
             // cap frame rate
             try {
@@ -213,31 +235,10 @@ public class Renderer {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             }
+
+            // update clock
             clock++;
         }
-
-        /* solid rendering, with lighting */
-        /*
-         * screen.clearBuffer ();
-         * shader.reset ();
-         * setLightingEnabled (true);
-         * renderSolid ();
-         * screen.swapBuffers ();
-         * wait (3);
-         */
-
-        /* solid rendering, with texture */
-        /*
-         * screen.clearBuffer ();
-         * TextureShader texShader = new TextureShader (screen);
-         * texShader.setTexture ("brick.jpg");
-         * shader = texShader;
-         * rasterizer.setShader (texShader);
-         * setLightingEnabled (true);
-         * renderSolid ();
-         * screen.swapBuffers ();
-         * wait (3);
-         */
 
         screen.destroy();
         System.exit(0);
