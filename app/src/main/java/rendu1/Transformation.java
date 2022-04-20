@@ -29,60 +29,59 @@ public class Transformation {
         try {
             // compute rotation
 
-            worldToCamera = Matrix.createIdentity(4);
-            worldToCamera.setName("W2C");
+            // new API
+            // Vector3 z = (Vector3) cam.readOnly.sub(lookAt).readOnly.normalize();
+            // Vector3 x = (Vector3) up.cross(z).readOnly.normalize();
+            // Vector3 y = z.cross(x);
 
-            Vector3 z = (Vector3) cam.readOnly.sub(lookAt).readOnly.normalize();
-            Vector3 x = (Vector3) up.cross(z).readOnly.normalize();
-            Vector3 y = z.cross(x);
+            // old API
+            Vector3 z = new Vector3(lookAt);
+            z.sub(cam);
+            z.normalize();
+            Vector3 x = new Vector3(up).cross(z);
+            x.normalize();
+            Vector3 y = new Vector3(z).cross(x);
+            y.normalize();
 
-            worldToCamera.set(0, 0, x.getX());
-            worldToCamera.set(0, 1, x.getY());
-            worldToCamera.set(0, 2, x.getZ());
-            worldToCamera.set(1, 0, y.getX());
-            worldToCamera.set(1, 1, y.getY());
-            worldToCamera.set(1, 2, y.getZ());
-            worldToCamera.set(2, 0, z.getX());
-            worldToCamera.set(2, 1, z.getY());
-            worldToCamera.set(2, 2, z.getZ());
+            for (int j = 0; j < 3; j++) {
+                worldToCamera.set(0, j, x.get(j));
+                worldToCamera.set(1, j, y.get(j));
+                worldToCamera.set(2, j, z.get(j));
+            }
+
+            Matrix A = worldToCamera.getSubMatrix(0, 0, 3, 3);
 
             // compute translation
+            Vector c = A.multiply(cam);
+            for (int j = 0; j < 3; j++) {
+                worldToCamera.set(j, 3, -c.get(j));
+            }
+            worldToCamera.set(3, 3, 1.0);
 
-            worldToCamera.set(0, 3, cam.getX());
-            worldToCamera.set(1, 3, cam.getY());
-            worldToCamera.set(2, 3, cam.getZ());
-
-            // compute projection
-
-            projection = Matrix.createIdentity(3);
-            projection.setName("P");
-            projection.set(0, 0, 1.0 / Math.tan(Math.toRadians(45.0 / 2.0)));
-            projection.set(1, 1, 1.0 / Math.tan(Math.toRadians(45.0 / 2.0)));
-            projection.set(2, 2, -1.0);
-            projection.set(2, 3, -1.0);
-            projection.set(3, 2, -1.0);
-            projection.set(3, 3, 0.0);
         } catch (SizeMismatchException | InstantiationException e) {
             /* should not reach */
         }
-
-        // compute translation
-
-        // TODO
 
         System.out.println("Modelview matrix:\n" + worldToCamera);
     }
 
     public void setProjection() {
 
-        // TODO
+        projection.set(0, 0, 1.0);
+        projection.set(1, 1, 1.0);
+        projection.set(2, 2, 1.0);
+
+        // TODO: implement angle of view
 
         System.out.println("Projection matrix:\n" + projection);
     }
 
     public void setCalibration(double focal, double width, double height) {
 
-        /* à compléter */
+        calibration.set(0, 0, focal);
+        calibration.set(1, 1, focal);
+        calibration.set(0, 2, width / 2.0);
+        calibration.set(1, 2, height / 2.0);
 
         System.out.println("Calibration matrix:\n" + calibration);
     }
@@ -94,11 +93,16 @@ public class Transformation {
      */
     public Vector3 projectPoint(Vector p)
             throws SizeMismatchException, InstantiationException {
-        Vector ps = new Vector(3);
+        Vector pOut = new Vector(3);
+        Vector px = worldToCamera.multiply(p);
+        px = projection.multiply(px);
+        px = calibration.multiply(px);
 
-        /* à compléter */
+        pOut.set(0, px.get(0) / px.get(2));
+        pOut.set(1, px.get(1) / px.get(2));
+        pOut.set(2, px.get(2));
 
-        return new Vector3(ps);
+        return new Vector3(pOut);
     }
 
     /**

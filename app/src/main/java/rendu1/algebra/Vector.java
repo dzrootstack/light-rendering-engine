@@ -14,6 +14,10 @@ public class Vector implements Cloneable {
         Vector v;
 
         public ReadOnly(Vector v) {
+            this.update(v);
+        }
+
+        public void update(Vector v) {
             this.v = v;
         }
 
@@ -102,6 +106,7 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] /= norm;
         }
+        readOnly.update(this);
     }
 
     /**
@@ -111,6 +116,7 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] *= f;
         }
+        readOnly.update(this);
     }
 
     /**
@@ -142,6 +148,7 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] += v.values[i];
         }
+        readOnly.update(this);
     }
 
     /**
@@ -155,6 +162,7 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] -= v.values[i];
         }
+        readOnly.update(this);
     }
 
     /**
@@ -178,6 +186,7 @@ public class Vector implements Cloneable {
      */
     public void setName(String name) {
         this.name = name;
+        readOnly.update(this);
     }
 
     /**
@@ -192,6 +201,7 @@ public class Vector implements Cloneable {
      */
     public void set(int i, double value) {
         this.values[i] = value;
+        readOnly.update(this);
     }
 
     /**
@@ -202,6 +212,7 @@ public class Vector implements Cloneable {
             throw new Exception("Bad size");
         }
         this.values = values;
+        readOnly.update(this);
     }
 
     /**
@@ -211,6 +222,7 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] = 0.0;
         }
+        readOnly.update(this);
     }
 
     /**
@@ -220,6 +232,7 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] = 1.0;
         }
+        readOnly.update(this);
     }
 
     /**
@@ -242,5 +255,6 @@ public class Vector implements Cloneable {
         }
         this.values = new double[size];
         this.size = size;
+        readOnly.update(this);
     }
 }
