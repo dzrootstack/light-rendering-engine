@@ -84,64 +84,71 @@ public class Rasterizer {
             }
         }
 
-        /*
-         * tracé d'un segment avec l'algo de Bresenham
-         * int numAttributes = v1.getNumAttributes ();
-         * Fragment fragment = new Fragment (0, 0); //, numAttributes);
-         * 
-         * boolean sym = (Math.abs (y2 - y1) > Math.abs (x2 - x1));
-         * if (sym) {
-         * int temp;
-         * temp = x1; x1 = y1 ; y1 = temp;
-         * temp = x2; x2 = y2 ; y2 = temp;
-         * }
-         * if (x1 > x2) {
-         * Fragment ftemp;
-         * int temp;
-         * temp = x1; x1 = x2; x2 = temp;
-         * temp = y1; y1 = y2; y2 = temp;
-         * ftemp = v1; v1 = v2; v2 = ftemp;
-         * }
-         * 
-         * int ystep;
-         * if (y1 < y2) {
-         * ystep = 1;
-         * } else {
-         * ystep = -1;
-         * }
-         * 
-         * int x = x1;
-         * float y_courant = y1;
-         * int y=y1;
-         * float delta_y = y2-y1;
-         * float delta_x = x2-x1;
-         * float m = delta_y/delta_x;
-         * 
-         * 
-         * for (int i=1;i<=delta_x;i++) {
-         * x = x+1;
-         * y_courant = y_courant + m;
-         * if ((ystep == 1)&&(y_courant < y+0.5)||((ystep == -1) && (y_courant > y
-         * -0.5))) {
-         * y = y;
-         * } else {
-         * y = y + ystep;
-         * }
-         * 
-         * //envoi du fragment au shader
-         * fragment.setPosition (x, y);
-         * 
-         * if (!shader.isClipped (fragment)) {
-         * 
-         * //interpolation des attributs
-         * interpolate2 (v1, v2, fragment);
-         * if (sym) {
-         * swapXAndY (fragment);
-         * }
-         * shader.shade (fragment);
-         * }
-         * }
-         */
+        // tracé d'un segment avec l'algo de Bresenham
+        int numAttributes = v1.getNumAttributes();
+        Fragment fragment = new Fragment(0, 0); // , numAttributes);
+
+        boolean sym = (Math.abs(y2 - y1) > Math.abs(x2 - x1));
+        if (sym) {
+            int temp;
+            temp = x1;
+            x1 = y1;
+            y1 = temp;
+            temp = x2;
+            x2 = y2;
+            y2 = temp;
+        }
+        if (x1 > x2) {
+            Fragment ftemp;
+            int temp;
+            temp = x1;
+            x1 = x2;
+            x2 = temp;
+            temp = y1;
+            y1 = y2;
+            y2 = temp;
+            ftemp = v1;
+            v1 = v2;
+            v2 = ftemp;
+        }
+
+        int ystep;
+        if (y1 < y2) {
+            ystep = 1;
+        } else {
+            ystep = -1;
+        }
+
+        int x = x1;
+        float y_courant = y1;
+        int y = y1;
+        float delta_y = y2 - y1;
+        float delta_x = x2 - x1;
+        float m = delta_y / delta_x;
+
+        for (int i = 1; i <= delta_x; i++) {
+            x = x + 1;
+            y_courant = y_courant + m;
+            if ((ystep == 1) && (y_courant < y + 0.5) || ((ystep == -1) && (y_courant > y
+                    - 0.5))) {
+                y = y;
+            } else {
+                y = y + ystep;
+            }
+
+            // envoi du fragment au shader
+            fragment.setPosition(x, y);
+
+            if (!shader.isClipped(fragment)) {
+
+                // interpolation des attributs
+                interpolate2(v1, v2, fragment);
+                if (sym) {
+                    swapXAndY(fragment);
+                }
+                shader.shade(fragment);
+            }
+        }
 
     }
 

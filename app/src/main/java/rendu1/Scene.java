@@ -132,4 +132,5 @@ public class Scene {
     public double[] getMaterial() {
         return material;
     }
+
 }

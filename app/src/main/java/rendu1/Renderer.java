@@ -1,5 +1,12 @@
 package rendu1;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.function.Consumer;
+
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import rendu1.algebra.SizeMismatchException;
 import rendu1.algebra.Vector;
 import rendu1.algebra.Vector3;
@@ -12,6 +19,12 @@ import rendu1.algebra.Vector3;
  */
 public class Renderer {
 
+    // camera settings
+    static double fov = Math.PI / 3;
+    static double near = 1.0;
+    static double far = 100.0;
+    static double aspect = 1.0;
+
     static Scene scene;
     static Mesh mesh;
     static Rasterizer rasterizer;
@@ -20,8 +33,15 @@ public class Renderer {
     static Transformation xform;
     static Lighting lighting;
     static boolean lightingEnabled;
+    static ArrayList<Consumer<Scene>> tasks;
+    static boolean isRunning;
+    static int frameRate = 60;
+
+    // clock loop counter
+    public static int clock;
 
     static void init(String sceneFilename) throws Exception {
+        tasks = new ArrayList<Consumer<Scene>>();
         scene = new Scene(sceneFilename);
         mesh = new Mesh(scene.getMeshFileName());
         screen = new GraphicsWrapper(scene.getScreenW(), scene.getScreenH());
@@ -35,7 +55,7 @@ public class Renderer {
         xform.setLookAt(scene.getCameraPosition(),
                 scene.getCameraLookAt(),
                 scene.getCameraUp());
-        xform.setProjection();
+        xform.setProjection(fov, aspect, near, far);
         xform.setCalibration(scene.getCameraFocal(), scene.getScreenW(), scene.getScreenH());
 
         lighting = new Lighting();
@@ -132,44 +152,69 @@ public class Renderer {
         }
     }
 
+    public static void runTasks() {
+        for (Consumer<Scene> task : tasks) {
+            task.accept(scene);
+        }
+    }
+
     public static void main(String[] args) {
 
-        // if (args.length == 0) {
-        // System.out.println("usage: java Renderer <scene_file>");
-        // } else {
-        // try {
-        // init(args[0]);
-        // } catch (Exception e) {
-        // System.out.println("Problem initializing Renderer: " + e);
-        // e.printStackTrace();
-        // return;
-        // }
-        // }
-
         try {
-            // get current directory
-            String currentDir = System.getProperty("user.dir");
-            System.out.println("Current working directory : " + currentDir);
-            init("./src/main/resources/example0.scene");
+            // open file choosing dialog at current directory
+            JFileChooser chooser = new JFileChooser();
+
+            chooser.setCurrentDirectory(new File("./app/src/main/resources"));
+            chooser.setDialogTitle("Open scene file");
+            chooser.setFileFilter(new FileNameExtensionFilter("Scene files", "scene"));
+            chooser.setAcceptAllFileFilterUsed(false);
+            int returnVal = chooser.showOpenDialog(null);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                init(file.getAbsolutePath());
+                isRunning = true;
+            } else {
+                System.out.println("No file selected.");
+                return;
+            }
+
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             System.out.println("Problem initializing Renderer: " + e);
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
-        /* wireframe rednering */
-        renderWireframe();
-        screen.swapBuffers();
-        wait(3);
+        // add camera orbit task
+        double camOrbitDist = 7;
+        tasks.add(scene -> {
+            // determine next camera pos using clock
+            double t = clock / 100.0;
+            Vector3 cameraPos = new Vector3(camOrbitDist * Math.sin(t), camOrbitDist, camOrbitDist * Math.cos(t));
+            xform.setLookAt(cameraPos, scene.getCameraLookAt(), scene.getCameraUp());
+        });
 
-        /* solid rendering, no lighting */
-        /*
-         * screen.clearBuffer ();
-         * shader.reset ();
-         * renderSolid ();
-         * screen.swapBuffers ();
-         * wait (3);
-         */
+        while (isRunning) {
+            screen.clearBuffer();
+
+            /* wireframe rendering */
+            renderWireframe();
+
+            /* solid rendering, no lighting */
+            // shader.reset();
+            // renderSolid();
+
+            screen.swapBuffers();
+            runTasks();
+
+            // cap frame rate
+            try {
+                Thread.sleep(1000 / frameRate);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+            clock++;
+        }
 
         /* solid rendering, with lighting */
         /*

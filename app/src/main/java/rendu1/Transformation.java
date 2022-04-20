@@ -10,6 +10,7 @@ import rendu1.algebra.Vector3;
  */
 public class Transformation {
 
+    boolean verbose = false;
     Matrix worldToCamera;
     Matrix projection;
     Matrix calibration;
@@ -62,18 +63,25 @@ public class Transformation {
             /* should not reach */
         }
 
-        System.out.println("Modelview matrix:\n" + worldToCamera);
+        if (verbose) {
+            System.out.println("Modelview matrix:\n" + worldToCamera);
+        }
     }
 
-    public void setProjection() {
+    public void setProjection(double fov, double aspect, double near, double far) {
 
         projection.set(0, 0, 1.0);
         projection.set(1, 1, 1.0);
         projection.set(2, 2, 1.0);
 
-        // TODO: implement angle of view
+        // projection.set(0, 0, 1.0 / Math.tan(fov / 2.0));
+        // projection.set(1, 1, projection.get(0, 0) / aspect);
+        // projection.set(2, 2, (far + near) / (near - far));
+        // projection.set(2, 3, 2.0 * far * near / (near - far));
 
-        System.out.println("Projection matrix:\n" + projection);
+        if (verbose) {
+            System.out.println("Projection matrix:\n" + projection);
+        }
     }
 
     public void setCalibration(double focal, double width, double height) {
@@ -83,7 +91,9 @@ public class Transformation {
         calibration.set(0, 2, width / 2.0);
         calibration.set(1, 2, height / 2.0);
 
-        System.out.println("Calibration matrix:\n" + calibration);
+        if (verbose) {
+            System.out.println("Calibration matrix:\n" + calibration);
+        }
     }
 
     /**
