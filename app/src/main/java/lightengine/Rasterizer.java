@@ -1,6 +1,13 @@
 package lightengine;
 
+import java.awt.Color;
+
+import javax.management.RuntimeErrorException;
+
 import lightengine.algebra.Matrix;
+import lightengine.algebra.SizeMismatchException;
+import lightengine.algebra.Vector;
+import lightengine.algebra.Vector3;
 
 /**
  * The Rasterizer class is responsible for the discretization of geometric
@@ -129,13 +136,10 @@ public class Rasterizer {
         for (int i = 1; i <= delta_x; i++) {
             x = x + 1;
             y_courant = y_courant + m;
-            if ((ystep == 1) && (y_courant < y + 0.5) || ((ystep == -1) && (y_courant > y
-                    - 0.5))) {
-                y = y;
-            } else {
+            if (!((ystep == 1) && (y_courant < y + 0.5) || ((ystep == -1) && (y_courant > y
+                    - 0.5)))) {
                 y = y + ystep;
             }
-
             // envoi du fragment au shader
             fragment.setPosition(x, y);
 
@@ -186,6 +190,14 @@ public class Rasterizer {
         return C;
     }
 
+    private void interpolate3(Fragment v1, Fragment v2, Fragment v3, Fragment f, Vector barycentricCoords) {
+        int numAttributes = v1.getNumAttributes();
+        for (int i = 0; i < numAttributes; i++) {
+            f.setAttribute(i, barycentricCoords.get(0) * v1.getAttribute(i)
+                    + barycentricCoords.get(1) * v2.getAttribute(i) + barycentricCoords.get(2) * v3.getAttribute(i));
+        }
+    }
+
     /**
      * Rasterizes the triangular face made of the Fragment v1, v2 and v3
      */
@@ -194,8 +206,28 @@ public class Rasterizer {
         Matrix C = makeBarycentricCoordsMatrix(v1, v2, v3);
 
         /* iterate over the triangle's bounding box */
+        int xmin = Math.min(Math.min(v1.getX(), v2.getX()), v3.getX());
+        int xmax = Math.max(Math.max(v1.getX(), v2.getX()), v3.getX());
+        int ymin = Math.min(Math.min(v1.getY(), v2.getY()), v3.getY());
+        int ymax = Math.max(Math.max(v1.getY(), v2.getY()), v3.getY());
 
-        // TODO
+        try {
+            for (int x = xmin; x <= xmax; x++) {
+                for (int y = ymin; y <= ymax; y++) {
+                    Fragment f = new Fragment(x, y);
+                    Vector barycentricCoords = C.multiply(new Vector3(1, x, y));
+                    if (!shader.isClipped(f)) {
+                        if (barycentricCoords.get(0) >= 0 && barycentricCoords.get(1) >= 0
+                                && barycentricCoords.get(2) >= 0) {
+                            interpolate3(v1, v2, v3, f, barycentricCoords);
+                            shader.shade(f);
+                        }
+                    }
+                }
+            }
+        } catch (SizeMismatchException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }

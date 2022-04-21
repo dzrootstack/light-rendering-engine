@@ -5,6 +5,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 
 import lightengine.algebra.SizeMismatchException;
@@ -39,6 +40,8 @@ public class Renderer {
 
     static boolean isRunning;
     static int frameRate = 60;
+    static Color backgroundColor = new Color(24, 24, 33);
+    static RenderingMode renderingMode = RenderingMode.WIREFRAME;
 
     // clock loop counter
     public static int clock;
@@ -71,35 +74,25 @@ public class Renderer {
      * Renders the elements in the scene.
      */
     static void render() {
-        /* wireframe rendering */
-        renderWireframe();
 
-        /* solid rendering, no lighting */
-        // shader.reset();
-        // renderSolid();
-
-        /* solid rendering, with lighting */
-        /*
-         * screen.clearBuffer ();
-         * shader.reset ();
-         * setLightingEnabled (true);
-         * renderSolid ();
-         * screen.swapBuffers ();
-         * wait (3);
-         */
-
-        /* solid rendering, with texture */
-        /*
-         * screen.clearBuffer ();
-         * TextureShader texShader = new TextureShader (screen);
-         * texShader.setTexture ("brick.jpg");
-         * shader = texShader;
-         * rasterizer.setShader (texShader);
-         * setLightingEnabled (true);
-         * renderSolid ();
-         * screen.swapBuffers ();
-         * wait (3);
-         */
+        switch (renderingMode) {
+            case WIREFRAME:
+                renderWireframe();
+                break;
+            case SOLID:
+                shader.reset();
+                renderSolid();
+                break;
+            case SOLID_TEXTURE:
+                TextureShader texShader = new TextureShader(screen);
+                texShader.setTexture("brick.jpg");
+                shader = texShader;
+                rasterizer.setShader(texShader);
+                renderSolid();
+                break;
+            default:
+                throw new RuntimeException("Unknown rendering mode");
+        }
     }
 
     static Fragment[] projectVertices() {
@@ -241,10 +234,34 @@ public class Renderer {
             }
         });
 
+        // add rendering mode switching task
+        taskMgr.addTask(Event.KEY_PRESSED, payload -> {
+            switch (payload.getKeyCode()) {
+                case KeyEvent.VK_F1:
+                    renderingMode = RenderingMode.WIREFRAME;
+                    break;
+                case KeyEvent.VK_F2:
+                    renderingMode = RenderingMode.SOLID;
+                    break;
+                case KeyEvent.VK_F3:
+                    renderingMode = RenderingMode.SOLID_TEXTURE;
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        // add lighting toggle task
+        taskMgr.addTask(Event.KEY_PRESSED, payload -> {
+            if (payload.getKeyCode() == KeyEvent.VK_L) {
+                setLightingEnabled(!lightingEnabled);
+            }
+        });
+
         // main loop
         while (isRunning) {
 
-            screen.clearBuffer();
+            screen.clearBuffer(backgroundColor);
             render();
             screen.swapBuffers();
             taskMgr.triggerTasks(Event.NEW_FRAME);

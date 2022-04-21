@@ -77,7 +77,7 @@ public class GraphicsWrapper {
     drawComp.setPreferredSize(new Dimension(width * pixelSize, height * pixelSize));
     drawComp.setVisible(true);
 
-    myFrame = new JFrame("Simple Inverse Rasterization Renderer (TSI)");
+    myFrame = new JFrame("Inverse rasterizer demo");
     myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     myFrame.add("Center", drawComp);
     myFrame.pack();
@@ -107,11 +107,7 @@ public class GraphicsWrapper {
    * And set its window visible.
    */
   public GraphicsWrapper(TaskMgr taskMgr, int width, int height) {
-    this.taskMgr = taskMgr;
-    this.height = height;
-    this.width = width;
-    this.pixelSize = 1;
-    init();
+    this(taskMgr, width, height, 1);
   }
 
   /**
@@ -218,13 +214,20 @@ public class GraphicsWrapper {
   }
 
   /**
-   * Clear current draw-buffer (ie Paint it black)
+   * Clear current draw-buffer with the given color.
    *
    */
-  public void clearBuffer() {
+  public void clearBuffer(Color c) {
     Graphics2D gd = backBuffer.createGraphics();
-    gd.setColor(Color.BLACK);
+    gd.setColor(c);
     gd.fillRect(0, 0, width * pixelSize, height * pixelSize);
+  }
+
+  /**
+   * Clear current draw-buffer (ie Paint it black)
+   */
+  public void clearBuffer() {
+    clearBuffer(Color.BLACK);
   }
 
   /**
