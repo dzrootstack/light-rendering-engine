@@ -8,14 +8,14 @@
       "type": "java",
       "name": "Launch TestRasterizer",
       "request": "launch",
-      "mainClass": "rendu1.TestRasterizer",
+      "mainClass": "lightengine.TestRasterizer",
       "projectName": "app"
     },
     {
       "type": "java",
       "name": "Launch Renderer",
       "request": "launch",
-      "mainClass": "rendu1.Renderer",
+      "mainClass": "lightengine.Renderer",
       "projectName": "app"
     }
   ]

@@ -26,7 +26,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'rendu1.Renderer'
+    mainClass = 'lightengine.Renderer'
 }
 
 tasks.named('test') {
