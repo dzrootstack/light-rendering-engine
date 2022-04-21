@@ -7,6 +7,7 @@ package lightengine;
  */
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Label;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -57,12 +58,13 @@ public class GraphicsWrapper {
   private int width = 0;
   private int pixelSize = 0;
 
-  private JFrame myFrame;
+  private ImageComponent drawComp = null;
+  private Label statusText;
+  private JFrame frame;
+
   private KeyListener myKeyListener;
   private ComponentAdapter myComponentAdapter;
   private TaskMgr taskMgr;
-
-  private ImageComponent drawComp = null;
 
   private BufferedImage backBuffer = null;
   private BufferedImage frontBuffer = null;
@@ -85,11 +87,17 @@ public class GraphicsWrapper {
     drawComp.setPreferredSize(new Dimension(width * pixelSize, height * pixelSize));
     drawComp.setVisible(true);
 
-    myFrame = new JFrame("Inverse rasterizer demo");
-    myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    myFrame.add(drawComp, "Center");
-    myFrame.pack();
-    myFrame.setVisible(true);
+    statusText = new Label("");
+    statusText.setBackground(new Color(35, 33, 38));
+    statusText.setForeground(new Color(180, 180, 180));
+    statusText.setVisible(true);
+
+    frame = new JFrame("Inverse rasterizer demo");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.add(drawComp, "Center");
+    frame.add(statusText, "South");
+    frame.pack();
+    frame.setVisible(true);
 
     myComponentAdapter = new ComponentAdapter() {
       public void componentResized(ComponentEvent e) {
@@ -119,8 +127,8 @@ public class GraphicsWrapper {
         taskMgr.triggerTasks(Event.KEY_RELEASED, pl);
       }
     };
-    myFrame.addComponentListener(myComponentAdapter);
-    myFrame.addKeyListener(myKeyListener);
+    frame.addComponentListener(myComponentAdapter);
+    frame.addKeyListener(myKeyListener);
   }
 
   /**
@@ -240,6 +248,10 @@ public class GraphicsWrapper {
     drawComp.setImage(frontBuffer);
   }
 
+  public void setStatusText(String text) {
+    statusText.setText(text);
+  }
+
   /**
    * Clear current draw-buffer with the given color.
    *
@@ -263,14 +275,14 @@ public class GraphicsWrapper {
    */
   public void swapBuffers() {
     frontBuffer = drawComp.swapImage(backBuffer);
-    myFrame.repaint();
+    frame.repaint();
   }
 
   /**
    * Destroy window.
    */
   public void destroy() {
-    myFrame.dispose();
+    frame.dispose();
   }
 
 }

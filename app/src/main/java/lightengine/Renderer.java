@@ -37,7 +37,8 @@ public class Renderer {
     static boolean lightingEnabled;
 
     static boolean isRunning;
-    static int frameRate = 60;
+    static int targetFrameRate = 60;
+    static int frameRate;
     static Color backgroundColor = new Color(24, 24, 33);
     static RenderingMode renderingMode = RenderingMode.WIREFRAME;
 
@@ -45,7 +46,7 @@ public class Renderer {
     static Rasterizer rasterizer;
     static int currentShader = 0;
 
-    // clock loop counter
+    // time measurement
     public static int clock;
 
     static void init(String sceneFilename) throws Exception {
@@ -72,6 +73,8 @@ public class Renderer {
         lighting.addAmbientLight(scene.getAmbientI());
         double[] lightCoord = scene.getSourceCoord();
         lighting.addPointLight(lightCoord[0], lightCoord[1], lightCoord[2], scene.getSourceI());
+
+        updateStatusText();
     }
 
     /**
@@ -184,6 +187,12 @@ public class Renderer {
         return xform;
     }
 
+    private static void updateStatusText() {
+        screen.setStatusText(String.format("Rendering mode: %s - Lighting %s - Shader: %s - FPS: %d", renderingMode,
+                lightingEnabled ? "enabled" : "disabled", shaders[currentShader].getClass().getSimpleName(),
+                frameRate));
+    }
+
     public static void main(String[] args) {
 
         try {
@@ -219,6 +228,11 @@ public class Renderer {
             cameraPos = new Vector3(camOrbitDist * Math.sin(t), cameraPos.get(1),
                     camOrbitDist * Math.cos(t));
             xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
+
+            // update status text
+            if (clock % 60 == 0) {
+                updateStatusText();
+            }
         });
 
         // add window resize task
@@ -227,6 +241,7 @@ public class Renderer {
             xform.setCalibration(scene.getCameraFocal(), size[0], size[1]);
             screen.resize(size[0], size[1]);
             shaders[currentShader].reset();
+            updateStatusText();
         });
 
         // add camera displacement task
@@ -257,6 +272,7 @@ public class Renderer {
                 default:
                     break;
             }
+            updateStatusText();
         });
 
         // add lighting toggle task
@@ -264,6 +280,7 @@ public class Renderer {
             if (payload.getKeyCode() == KeyEvent.VK_L) {
                 setLightingEnabled(!lightingEnabled);
             }
+            updateStatusText();
         });
 
         // add shader switching task
@@ -272,19 +289,30 @@ public class Renderer {
                 currentShader = (currentShader + 1) % shaders.length;
                 rasterizer.setShader(shaders[currentShader]);
             }
+            updateStatusText();
         });
 
-        // main loop
+        // Main loop
+        long frameTime;
+        long renderTime;
         while (isRunning) {
 
-            screen.clearBuffer(backgroundColor);
-            render();
-            screen.swapBuffers();
-            taskMgr.triggerTasks(Event.NEW_FRAME);
+            frameTime = System.currentTimeMillis();
+
+            try {
+                screen.clearBuffer(backgroundColor);
+                render();
+                screen.swapBuffers();
+                taskMgr.triggerTasks(Event.NEW_FRAME);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.out.println("Frame skipped: encountered ArrayIndexOutOfBoundsException.");
+            }
+
+            renderTime = System.currentTimeMillis() - frameTime;
 
             // cap frame rate
             try {
-                Thread.sleep(1000 / frameRate);
+                Thread.sleep(Math.max(0, (int) (1000 / targetFrameRate - renderTime)));
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
@@ -292,6 +320,9 @@ public class Renderer {
 
             // update clock
             clock++;
+
+            frameTime = System.currentTimeMillis() - frameTime;
+            frameRate = (int) (1000 / frameTime);
         }
 
         screen.destroy();
