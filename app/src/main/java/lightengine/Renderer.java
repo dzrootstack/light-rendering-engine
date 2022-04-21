@@ -1,12 +1,11 @@
 package lightengine;
 
+import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import java.awt.Color;
-import java.awt.event.KeyEvent;
 
 import lightengine.algebra.SizeMismatchException;
 import lightengine.algebra.Vector;
@@ -57,7 +56,7 @@ public class Renderer {
         screen.clearBuffer();
 
         TextureShader texShader = new TextureShader(screen);
-        texShader.setTexture("app/src/main/resources/brick.jpg");
+        texShader.setTexture("src/main/resources/textures/brick.jpg");
 
         shaders = new Shader[] { new SimpleShader(screen), new DepthShader(screen) };
         rasterizer = new PerspectiveCorrectRasterizer(shaders[currentShader]);
@@ -199,7 +198,7 @@ public class Renderer {
             // open file choosing dialog at current directory
             JFileChooser chooser = new JFileChooser();
 
-            chooser.setCurrentDirectory(new File("./app/src/main/resources"));
+            chooser.setCurrentDirectory(new File("src/main/resources/scenery"));
             chooser.setDialogTitle("Open scene file");
             chooser.setFileFilter(new FileNameExtensionFilter("Scene files", "scene"));
             chooser.setAcceptAllFileFilterUsed(false);
@@ -275,12 +274,14 @@ public class Renderer {
             updateStatusText();
         });
 
-        // add lighting toggle task
+        // add lighting toggle task and exit task
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
             if (payload.getKeyCode() == KeyEvent.VK_L) {
                 setLightingEnabled(!lightingEnabled);
+                updateStatusText();
+            } else if (payload.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                isRunning = false;
             }
-            updateStatusText();
         });
 
         // add shader switching task
@@ -288,8 +289,8 @@ public class Renderer {
             if (payload.getKeyCode() == KeyEvent.VK_SPACE) {
                 currentShader = (currentShader + 1) % shaders.length;
                 rasterizer.setShader(shaders[currentShader]);
+                updateStatusText();
             }
-            updateStatusText();
         });
 
         // Main loop

@@ -45,7 +45,7 @@ public class Scene {
 
         meshFilename = nextLine(in);
         // concatenate the scene file directory and the mesh file name
-        meshFilename = dir + meshFilename;
+        meshFilename = dir + '/' + meshFilename;
 
         String r = nextLine(in);
         String[] sar = r.split("\\s+");

@@ -8,9 +8,9 @@ cube_multi_color.off
 # camera's y vector:
 0.0 -1.0 0.0
 # focal length:
-512
+530
 # w and h (pixels):
-512 512
+530 530
 # ambient light intensity Ia
 1.8
 # point light : 3D coordinates and ligth intensity (x, y, z, Id)

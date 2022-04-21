@@ -6,17 +6,11 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Launch TestRasterizer",
-      "request": "launch",
-      "mainClass": "lightengine.TestRasterizer",
-      "projectName": "app"
-    },
-    {
-      "type": "java",
       "name": "Launch Renderer",
       "request": "launch",
       "mainClass": "lightengine.Renderer",
-      "projectName": "app"
+      "projectName": "app",
+      "cwd": "${workspaceFolder}/app"
     }
   ]
 }
