@@ -1,34 +1,51 @@
 package lightengine.tasks;
 
+import java.util.HashMap;
+
 public class PayLoad {
-  private int keyCode;
-  private String message;
+
+  enum Category {
+    KEY_CODE,
+    MESSAGE,
+    INT_ARRAY,
+    FLOAT_ARRAY,
+    DOUBLE_ARRAY,
+    STRING_ARRAY,
+    OBJECT_ARRAY,
+  }
+
+  private HashMap<Category, Object> data;
 
   public PayLoad() {
+    data = new HashMap<Category, Object>();
   }
 
-  public PayLoad(int keyCode, String message) {
-    this.keyCode = keyCode;
-    this.message = message;
-  }
-
-  public PayLoad(int keyCode) {
-    this.keyCode = keyCode;
+  public PayLoad(HashMap<Category, Object> data) {
+    this.data = data;
   }
 
   public void setKeyCode(int keyCode) {
-    this.keyCode = keyCode;
+    this.data.put(Category.KEY_CODE, keyCode);
   }
 
   public void setMessage(String message) {
-    this.message = message;
+    this.data.put(Category.MESSAGE, message);
+  }
+
+  public void setIntArray(int[] intArray) {
+    this.data.put(Category.INT_ARRAY, intArray);
   }
 
   public int getKeyCode() {
-    return keyCode;
+    return (int) this.data.get(Category.KEY_CODE);
   }
 
   public String getMessage() {
-    return message;
+    return (String) this.data.get(Category.MESSAGE);
   }
+
+  public int[] getIntArray() {
+    return (int[]) this.data.get(Category.INT_ARRAY);
+  }
+
 }

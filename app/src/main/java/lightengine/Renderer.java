@@ -30,9 +30,7 @@ public class Renderer {
 
     static Scene scene;
     static Mesh mesh;
-    static Rasterizer rasterizer;
     static GraphicsWrapper screen;
-    static Shader shader;
     static Transformation xform;
     static Lighting lighting;
     static TaskMgr taskMgr;
@@ -43,6 +41,10 @@ public class Renderer {
     static Color backgroundColor = new Color(24, 24, 33);
     static RenderingMode renderingMode = RenderingMode.WIREFRAME;
 
+    static Shader[] shaders;
+    static Rasterizer rasterizer;
+    static int currentShader = 0;
+
     // clock loop counter
     public static int clock;
 
@@ -52,10 +54,12 @@ public class Renderer {
         mesh = new Mesh(scene.getMeshFileName());
         screen = new GraphicsWrapper(taskMgr, scene.getScreenW(), scene.getScreenH());
         screen.clearBuffer();
-        shader = new SimpleShader(screen);
-        // shader = new PainterShader (screen);
-        // rasterizer = new PerspectiveCorrectRasterizer (shader);
-        rasterizer = new Rasterizer(shader);
+
+        TextureShader texShader = new TextureShader(screen);
+        texShader.setTexture("app/src/main/resources/brick.jpg");
+
+        shaders = new Shader[] { new SimpleShader(screen), new DepthShader(screen) };
+        rasterizer = new PerspectiveCorrectRasterizer(shaders[currentShader]);
 
         xform = new Transformation();
         xform.setLookAt(scene.getCameraPosition(),
@@ -80,14 +84,10 @@ public class Renderer {
                 renderWireframe();
                 break;
             case SOLID:
-                shader.reset();
+                shaders[currentShader].reset();
                 renderSolid();
                 break;
             case SOLID_TEXTURE:
-                TextureShader texShader = new TextureShader(screen);
-                texShader.setTexture("brick.jpg");
-                shader = texShader;
-                rasterizer.setShader(texShader);
                 renderSolid();
                 break;
             default:
@@ -221,6 +221,14 @@ public class Renderer {
             xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
         });
 
+        // add window resize task
+        taskMgr.addTask(Event.WINDOW_RESIZED, payload -> {
+            int[] size = payload.getIntArray();
+            xform.setCalibration(scene.getCameraFocal(), size[0], size[1]);
+            screen.resize(size[0], size[1]);
+            shaders[currentShader].reset();
+        });
+
         // add camera displacement task
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
             if (payload.getKeyCode() == KeyEvent.VK_UP) {
@@ -255,6 +263,14 @@ public class Renderer {
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
             if (payload.getKeyCode() == KeyEvent.VK_L) {
                 setLightingEnabled(!lightingEnabled);
+            }
+        });
+
+        // add shader switching task
+        taskMgr.addTask(Event.KEY_PRESSED, payload -> {
+            if (payload.getKeyCode() == KeyEvent.VK_SPACE) {
+                currentShader = (currentShader + 1) % shaders.length;
+                rasterizer.setShader(shaders[currentShader]);
             }
         });
 

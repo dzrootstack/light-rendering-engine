@@ -1,16 +1,16 @@
 package lightengine;
 
 /**
- * Simple shader that just copy the interpolated color to the screen,
+ * Simple shader that copies the interpolated color to the screen,
  * taking the depth of the fragment into acount.
  * 
  * @author: cdehais
  */
-public class PainterShader extends Shader {
+public class DepthShader extends Shader {
 
     DepthBuffer depth;
 
-    public PainterShader(GraphicsWrapper screen) {
+    public DepthShader(GraphicsWrapper screen) {
         super(screen);
         depth = new DepthBuffer(screen.getWidth(), screen.getHeight());
     }
@@ -23,6 +23,7 @@ public class PainterShader extends Shader {
     }
 
     public void reset() {
+        depth.resize(screen.getWidth(), screen.getHeight());
         depth.clear();
     }
 }

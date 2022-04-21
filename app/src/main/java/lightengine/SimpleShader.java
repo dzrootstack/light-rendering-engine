@@ -1,7 +1,7 @@
 package lightengine;
 
 /**
- * Simple shader that just copy the interpolated color to the screen.
+ * Simple shader that copies the interpolated color to the screen.
  * 
  * @author: cdehais
  */
@@ -12,8 +12,6 @@ public class SimpleShader extends Shader {
     }
 
     public void shade(Fragment fragment) {
-        // System.out.println (fragment.getX () + "," + fragment.getY ());
-        // System.out.println ("color " + fragment.getColor ());
         screen.setPixel(fragment.getX(), fragment.getY(), fragment.getColor());
     }
 }

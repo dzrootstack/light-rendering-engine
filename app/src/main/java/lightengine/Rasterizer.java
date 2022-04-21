@@ -1,9 +1,5 @@
 package lightengine;
 
-import java.awt.Color;
-
-import javax.management.RuntimeErrorException;
-
 import lightengine.algebra.Matrix;
 import lightengine.algebra.SizeMismatchException;
 import lightengine.algebra.Vector;

@@ -31,20 +31,26 @@ public class DepthBuffer {
 
     }
 
+    public void resize(int width, int height) {
+        buffer = new double[width * height];
+        this.width = width;
+        this.height = height;
+        clear();
+    }
+
     /**
      * Test if a fragment passes the DepthBuffer test, i.e. is the fragment the
      * closest at its position.
      */
     public boolean testFragment(Fragment fragment) {
         if ((fragment.getX() >= 0) && (fragment.getX() < width) && (fragment.getY() >= 0)
-                && (fragment.getY() < height)) {
+                && (fragment.getY() < height)) { // fragment in bounds
+            if (fragment.getDepth() < buffer[fragment.getY() * width + fragment.getX()]) {
+                return true;
+            }
 
-            /* COMPLETER */
-
-            return false;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -53,8 +59,7 @@ public class DepthBuffer {
     public void writeFragment(Fragment fragment) {
         if ((fragment.getX() >= 0) && (fragment.getX() < width) && (fragment.getY() >= 0)
                 && (fragment.getY() < height)) {
-
-            /* COMPLETER */
+            buffer[fragment.getY() * width + fragment.getX()] = fragment.getDepth();
 
         }
     }

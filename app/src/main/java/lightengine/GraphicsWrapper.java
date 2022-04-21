@@ -12,6 +12,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -27,6 +29,11 @@ class ImageComponent extends Component {
 
   public ImageComponent(BufferedImage init) {
     renderedImage = init;
+  }
+
+  public void setImage(BufferedImage image) {
+    renderedImage = image;
+    repaint();
   }
 
   public BufferedImage swapImage(BufferedImage bi) {
@@ -52,6 +59,7 @@ public class GraphicsWrapper {
 
   private JFrame myFrame;
   private KeyListener myKeyListener;
+  private ComponentAdapter myComponentAdapter;
   private TaskMgr taskMgr;
 
   private ImageComponent drawComp = null;
@@ -79,10 +87,18 @@ public class GraphicsWrapper {
 
     myFrame = new JFrame("Inverse rasterizer demo");
     myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    myFrame.add("Center", drawComp);
+    myFrame.add(drawComp, "Center");
     myFrame.pack();
     myFrame.setVisible(true);
 
+    myComponentAdapter = new ComponentAdapter() {
+      public void componentResized(ComponentEvent e) {
+        PayLoad pl = new PayLoad();
+        Dimension d = e.getComponent().getSize();
+        pl.setIntArray(new int[] { (int) d.getWidth(), (int) d.getHeight() });
+        taskMgr.triggerTasks(Event.WINDOW_RESIZED, pl);
+      }
+    };
     myKeyListener = new KeyListener() {
 
       @Override
@@ -91,14 +107,19 @@ public class GraphicsWrapper {
 
       @Override
       public void keyPressed(KeyEvent e) {
-        taskMgr.triggerTasks(Event.KEY_PRESSED, new PayLoad(e.getKeyCode()));
+        PayLoad pl = new PayLoad();
+        pl.setKeyCode(e.getKeyCode());
+        taskMgr.triggerTasks(Event.KEY_PRESSED, pl);
       }
 
       @Override
       public void keyReleased(KeyEvent e) {
-        taskMgr.triggerTasks(Event.KEY_RELEASED, new PayLoad(e.getKeyCode()));
+        PayLoad pl = new PayLoad();
+        pl.setKeyCode(e.getKeyCode());
+        taskMgr.triggerTasks(Event.KEY_RELEASED, pl);
       }
     };
+    myFrame.addComponentListener(myComponentAdapter);
     myFrame.addKeyListener(myKeyListener);
   }
 
@@ -202,15 +223,21 @@ public class GraphicsWrapper {
     return color;
   }
 
-  /**
-   *
-   */
   int getWidth() {
     return width;
   }
 
   int getHeight() {
     return height;
+  }
+
+  public void resize(int width, int height) {
+    this.width = width;
+    this.height = height;
+    // recreate buffers
+    backBuffer = new BufferedImage(width * pixelSize, height * pixelSize, BufferedImage.TYPE_INT_ARGB);
+    frontBuffer = new BufferedImage(width * pixelSize, height * pixelSize, BufferedImage.TYPE_INT_ARGB);
+    drawComp.setImage(frontBuffer);
   }
 
   /**
