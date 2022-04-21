@@ -6,64 +6,10 @@
 
 package lightengine.algebra;
 
-import java.util.function.Consumer;
-
 public class Vector implements Cloneable {
-
-    public class ReadOnly {
-        Vector v;
-
-        public ReadOnly(Vector v) {
-            this.update(v);
-        }
-
-        public void update(Vector v) {
-            this.v = v;
-        }
-
-        public Vector sub(Vector w) {
-            return ReadOnly.passThrough(w, input -> {
-                try {
-                    input.sub(w);
-                } catch (SizeMismatchException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("Size mismatch in method Vector::sub");
-                }
-            });
-        }
-
-        public Vector add(Vector w) {
-            return ReadOnly.passThrough(w, input -> {
-                try {
-                    input.add(w);
-                } catch (SizeMismatchException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("Size mismatch in method Vector::add");
-                }
-            });
-        }
-
-        public Vector normalize() throws SizeMismatchException {
-            return ReadOnly.passThrough(v, input -> input.normalize());
-        }
-
-        public static Vector passThrough(Vector w, Consumer<Vector> lambda) {
-            Vector v1;
-            try {
-                v1 = (Vector) w.clone();
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Clone not supported");
-            }
-            lambda.accept(v1);
-            return v1;
-        }
-
-    }
 
     protected int size;
     protected double values[];
-    public ReadOnly readOnly = new ReadOnly(this);
     public String name = "v";
 
     protected Vector() {
@@ -97,6 +43,16 @@ public class Vector implements Cloneable {
         return Math.sqrt(r);
     }
 
+    public double distance(Vector v) {
+        double r = 0.0;
+
+        for (int i = 0; i < this.size; i++) {
+            r += (this.values[i] - v.values[i]) * (this.values[i] - v.values[i]);
+        }
+
+        return Math.sqrt(r);
+    }
+
     /**
      * Makes the Vector unitary.
      */
@@ -106,7 +62,6 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] /= norm;
         }
-        readOnly.update(this);
     }
 
     /**
@@ -116,7 +71,6 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] *= f;
         }
-        readOnly.update(this);
     }
 
     /**
@@ -148,7 +102,6 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] += v.values[i];
         }
-        readOnly.update(this);
     }
 
     /**
@@ -162,7 +115,6 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] -= v.values[i];
         }
-        readOnly.update(this);
     }
 
     /**
@@ -186,7 +138,6 @@ public class Vector implements Cloneable {
      */
     public void setName(String name) {
         this.name = name;
-        readOnly.update(this);
     }
 
     /**
@@ -201,7 +152,6 @@ public class Vector implements Cloneable {
      */
     public void set(int i, double value) {
         this.values[i] = value;
-        readOnly.update(this);
     }
 
     /**
@@ -212,7 +162,6 @@ public class Vector implements Cloneable {
             throw new Exception("Bad size");
         }
         this.values = values;
-        readOnly.update(this);
     }
 
     /**
@@ -222,7 +171,6 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] = 0.0;
         }
-        readOnly.update(this);
     }
 
     /**
@@ -232,7 +180,6 @@ public class Vector implements Cloneable {
         for (int i = 0; i < size; i++) {
             values[i] = 1.0;
         }
-        readOnly.update(this);
     }
 
     /**
@@ -255,6 +202,5 @@ public class Vector implements Cloneable {
         }
         this.values = new double[size];
         this.size = size;
-        readOnly.update(this);
     }
 }

@@ -36,8 +36,8 @@ public class Renderer {
     static boolean lightingEnabled;
 
     static boolean isRunning;
-    static int targetFrameRate = 60;
-    static int frameRate;
+    static int targetFrameRate = 5; // frames per second
+    static float frameRate;
     static Color backgroundColor = new Color(24, 24, 33);
     static RenderingMode renderingMode = RenderingMode.WIREFRAME;
 
@@ -187,9 +187,12 @@ public class Renderer {
     }
 
     private static void updateStatusText() {
-        screen.setStatusText(String.format("Rendering mode: %s - Lighting %s - Shader: %s - FPS: %d", renderingMode,
+        String text = String.format(
+                "Rendering mode: %s - Lighting %s - Shader: %s - FPS: %.2f",
+                renderingMode,
                 lightingEnabled ? "enabled" : "disabled", shaders[currentShader].getClass().getSimpleName(),
-                frameRate));
+                frameRate);
+        screen.setStatusText(text);
     }
 
     public static void main(String[] args) {
@@ -219,10 +222,10 @@ public class Renderer {
         }
 
         // add camera orbit task
-        double camOrbitDist = 7;
+        double camOrbitDist = scene.getCameraPosition().distance(scene.getCameraLookAt());
         taskMgr.addTask(Event.NEW_FRAME, payload -> {
             // determine next camera pos (time-based)
-            double t = clock / 100.0;
+            double t = clock / 50.0;
             Vector3 cameraPos = xform.getCameraPosition();
             cameraPos = new Vector3(camOrbitDist * Math.sin(t), cameraPos.get(1),
                     camOrbitDist * Math.cos(t));
@@ -239,7 +242,9 @@ public class Renderer {
             int[] size = payload.getIntArray();
             xform.setCalibration(scene.getCameraFocal(), size[0], size[1]);
             screen.resize(size[0], size[1]);
-            shaders[currentShader].reset();
+            for (Shader s : shaders) {
+                s.reset();
+            }
             updateStatusText();
         });
 
@@ -311,6 +316,9 @@ public class Renderer {
 
             renderTime = System.currentTimeMillis() - frameTime;
 
+            // update clock
+            clock++;
+
             // cap frame rate
             try {
                 Thread.sleep(Math.max(0, (int) (1000 / targetFrameRate - renderTime)));
@@ -319,11 +327,8 @@ public class Renderer {
                 throw new RuntimeException(e);
             }
 
-            // update clock
-            clock++;
-
             frameTime = System.currentTimeMillis() - frameTime;
-            frameRate = (int) (1000 / frameTime);
+            frameRate = (float) 1000. / frameTime;
         }
 
         screen.destroy();

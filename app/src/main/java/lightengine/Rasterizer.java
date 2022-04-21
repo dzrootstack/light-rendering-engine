@@ -74,7 +74,7 @@ public class Rasterizer {
         int x2 = v2.getX();
         int y2 = v2.getY();
 
-        /* For now : just display the vertices */
+        /* Display the vertices */
         Fragment f = new Fragment(0, 0);
         int size = 2;
         for (int i = 0; i < v1.getNumAttributes(); i++) {

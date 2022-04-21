@@ -13,7 +13,7 @@ public class Lighting {
     static final int NONE = 0;
     static final int AMBIENT = 1;
     static final int POINT = 2;
-    List lights;
+    List<Light> lights;
 
     /* Internal Class describing a light source */
     private class Light {
@@ -27,7 +27,7 @@ public class Lighting {
     }
 
     public Lighting() {
-        lights = new LinkedList();
+        lights = new LinkedList<>();
     }
 
     /* Adds a new ambient light source of intensity @ia to the environment. */
@@ -59,13 +59,13 @@ public class Lighting {
         double[] litColor = new double[3];
         /* total light intensity */
         double I = 0.0;
-        Iterator it = lights.iterator();
+        Iterator<Light> it = lights.iterator();
         while (it.hasNext()) {
             Light light = (Light) it.next();
             switch (light.type) {
                 case AMBIENT:
-                    /* Ambient light : A COMPLETER */
-                    /* I += ... */
+                    /* Ambient light */
+                    I += ka * light.params[0];
                     break;
                 case POINT:
                     try {
@@ -81,11 +81,14 @@ public class Lighting {
                         Vector3 h = new Vector3(e);
                         h.add(l);
                         h.normalize();
-                        /* diffuse contribution : A COMPLETER */
-                        /* double Id = ... */
-                        /* specular contribution : A COMPLETER */
-                        /* double Is = ... */
-                        /* I += Id + Is; */
+                        /* diffuse and specular components */
+                        double intensity = light.params[3];
+                        /* diffuse contribution */
+                        double Id = intensity * kd * Math.max(0, Math.abs(normal.dot(l)));
+                        /* specular contribution */
+                        double Is = intensity * ks * Math.pow(Math.max(0, Math.abs(h.dot(normal))), s);
+                        /* total light intensity */
+                        I += Id + Is;
                     } catch (InstantiationException ex) {
                         /* should not reach */ } catch (SizeMismatchException ex) {
                         /* should not reach */ }
