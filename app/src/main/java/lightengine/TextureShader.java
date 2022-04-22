@@ -59,8 +59,11 @@ public class TextureShader extends Shader {
     }
 
     public void reset() {
-        depth.resize(screen.getWidth(), screen.getHeight());
         depth.clear();
+    }
+
+    public void resize() {
+        depth.resize(screen.getWidth(), screen.getHeight());
     }
 
     @Override

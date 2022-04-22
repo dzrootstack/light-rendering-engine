@@ -23,8 +23,11 @@ public class DepthShader extends Shader {
     }
 
     public void reset() {
-        depth.resize(screen.getWidth(), screen.getHeight());
         depth.clear();
+    }
+
+    public void resize() {
+        depth.resize(screen.getWidth(), screen.getHeight());
     }
 
     public String getName() {

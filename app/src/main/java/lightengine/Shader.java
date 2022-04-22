@@ -23,6 +23,12 @@ public abstract class Shader {
     }
 
     /**
+     * Update the screen size (only necessary if the shader uses a depth buffer)
+     */
+    public void resize() {
+    }
+
+    /**
      * Computes the fragment color and write the result to the screen.
      */
     public abstract void shade(Fragment fragment);

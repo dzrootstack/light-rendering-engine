@@ -83,6 +83,7 @@ public class Renderer {
      * Renders the elements in the scene.
      */
     static void render() {
+        shaders[currentShader].reset();
 
         switch (renderingMode) {
             case WIREFRAME:
@@ -243,7 +244,7 @@ public class Renderer {
             xform.setCalibration(scene.getCameraFocal(), size[0], size[1]);
             screen.resize(size[0], size[1]);
             for (Shader s : shaders) {
-                s.reset();
+                s.resize();
             }
             updateStatusText();
         });
@@ -310,6 +311,7 @@ public class Renderer {
         long renderTime;
         while (isRunning) {
 
+            // save current time
             frameTime = System.currentTimeMillis();
 
             try {
@@ -325,6 +327,7 @@ public class Renderer {
                         Toast.SHORT_DELAY);
             }
 
+            // save render time
             renderTime = System.currentTimeMillis() - frameTime;
 
             // update clock
@@ -338,6 +341,7 @@ public class Renderer {
                 throw new RuntimeException(e);
             }
 
+            // save total frame time
             frameTime = System.currentTimeMillis() - frameTime;
             frameRate = (float) 1000. / frameTime;
         }
