@@ -233,9 +233,10 @@ public class Renderer {
                     Vector3 newCamPos = new Vector3(scene.getCameraLookAt());
                     double a = up.get(0);
                     double b = up.get(1);
-                    double c = up.get(2);
-                    Vector3 rotationPlaneX = new Vector3(0, 1, a != 0 ? -b / a : 0);
-                    Vector3 rotationPlaneY = new Vector3(1, 0, a != 0 ? -c / a : 0);
+                    Vector3 rotationPlaneX = new Vector3(a != 0 ? -b / a : 0, 1, 0);
+                    Vector3 rotationPlaneY = rotationPlaneX.cross(up);
+                    rotationPlaneX.normalize();
+                    rotationPlaneY.normalize();
                     rotationPlaneX.scale(camOrbitDist * Math.sin(t));
                     rotationPlaneY.scale(camOrbitDist * Math.cos(t));
                     newCamPos.add(rotationPlaneX);
