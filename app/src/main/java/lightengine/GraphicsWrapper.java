@@ -76,6 +76,7 @@ public class GraphicsWrapper {
     frontBuffer = new BufferedImage(width * pixelSize, height * pixelSize, BufferedImage.TYPE_3BYTE_BGR);
 
     drawComp = new ImageComponent(frontBuffer);
+    drawComp.setBackground(Color.BLACK);
     drawComp.setPreferredSize(new Dimension(width * pixelSize, height * pixelSize));
     drawComp.setVisible(true);
 

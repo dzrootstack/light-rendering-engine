@@ -221,7 +221,7 @@ public class Renderer {
             throw new RuntimeException(e);
         }
 
-        // add camera orbit task
+        // add camera orbit and status update task
         double camOrbitDist = scene.getCameraPosition().distance(scene.getCameraLookAt());
         taskMgr.addTask(Event.NEW_FRAME, payload -> {
             if (doOrbit) {
@@ -233,10 +233,10 @@ public class Renderer {
             }
 
             // update status text
-            if (clock % 60 == 0) {
+            if (clock % 10 == 0) {
                 updateStatusText();
             }
-        });
+        }, "camera orbit");
 
         // add window resize task
         taskMgr.addTask(Event.WINDOW_RESIZED, payload -> {
@@ -247,30 +247,7 @@ public class Renderer {
                 s.resize();
             }
             updateStatusText();
-        });
-
-        // add camera displacement task and orbit toggle task
-        taskMgr.addTask(Event.KEY_PRESSED, payload -> {
-            if (payload.getKeyCode() == KeyEvent.VK_UP) {
-                Vector3 cameraPos = xform.getCameraPosition();
-                cameraPos.set(cameraPos.get(0), cameraPos.get(1) + 0.3, cameraPos.get(2));
-                xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
-            } else if (payload.getKeyCode() == KeyEvent.VK_DOWN) {
-                Vector3 cameraPos = xform.getCameraPosition();
-                cameraPos.set(cameraPos.get(0), cameraPos.get(1) - 0.3, cameraPos.get(2));
-                xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
-            } else if (payload.getKeyCode() == KeyEvent.VK_LEFT) {
-                Vector3 cameraPos = xform.getCameraPosition();
-                cameraPos.set(cameraPos.get(0) - 0.3, cameraPos.get(1), cameraPos.get(2));
-                xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
-            } else if (payload.getKeyCode() == KeyEvent.VK_RIGHT) {
-                Vector3 cameraPos = xform.getCameraPosition();
-                cameraPos.set(cameraPos.get(0) + 0.3, cameraPos.get(1), cameraPos.get(2));
-                xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
-            } else if (payload.getKeyCode() == KeyEvent.VK_SPACE) {
-                doOrbit = !doOrbit;
-            }
-        });
+        }, "window resize");
 
         // add rendering mode switching task
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
@@ -285,7 +262,7 @@ public class Renderer {
                     break;
             }
             updateStatusText();
-        });
+        }, "rendering mode switching");
 
         // add lighting toggle task and exit task
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
@@ -295,7 +272,7 @@ public class Renderer {
             } else if (payload.getKeyCode() == KeyEvent.VK_ESCAPE) {
                 isRunning = false;
             }
-        });
+        }, "lighting toggle");
 
         // add shader switching task
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
@@ -304,7 +281,10 @@ public class Renderer {
                 rasterizer.setShader(shaders[currentShader]);
                 updateStatusText();
             }
-        });
+        }, "shader switching");
+
+        // Display an overview of all the active tasks
+        taskMgr.printTasks();
 
         // Main loop
         long frameTime;
