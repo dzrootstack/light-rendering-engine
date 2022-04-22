@@ -52,7 +52,6 @@ public class Mesh {
         /* Parse object properties */
         int verts_nb = Integer.parseInt(sar[0]);
         int faces_nb = Integer.parseInt(sar[1]);
-        int edges_nb = Integer.parseInt(sar[2]);
 
         /* Parse vertices and attributes */
         vertices = new Vector[verts_nb];

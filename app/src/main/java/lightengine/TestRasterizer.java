@@ -17,6 +17,10 @@ public class TestRasterizer {
             System.out.println("  fragment: (" + fragment.getX() + ", " + fragment.getY() + ")"
                     + " - color = (" + fragment.getColor() + ")");
         }
+
+        public String getName() {
+            return "TestShader";
+        }
     }
 
     public static void test() throws Exception {

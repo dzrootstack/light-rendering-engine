@@ -7,6 +7,8 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.kingaspx.toast.util.Toast;
+
 import lightengine.algebra.SizeMismatchException;
 import lightengine.algebra.Vector;
 import lightengine.algebra.Vector3;
@@ -58,7 +60,7 @@ public class Renderer {
         TextureShader texShader = new TextureShader(screen);
         texShader.setTexture("src/main/resources/textures/brick.jpg");
 
-        shaders = new Shader[] { new SimpleShader(screen), new DepthShader(screen) };
+        shaders = new Shader[] { new SimpleShader(screen), new DepthShader(screen), texShader };
         rasterizer = new PerspectiveCorrectRasterizer(shaders[currentShader]);
 
         xform = new Transformation();
@@ -86,10 +88,6 @@ public class Renderer {
                 renderWireframe();
                 break;
             case SOLID:
-                shaders[currentShader].reset();
-                renderSolid();
-                break;
-            case SOLID_TEXTURE:
                 renderSolid();
                 break;
             default:
@@ -227,8 +225,7 @@ public class Renderer {
             // determine next camera pos (time-based)
             double t = clock / 50.0;
             Vector3 cameraPos = xform.getCameraPosition();
-            cameraPos = new Vector3(camOrbitDist * Math.sin(t), cameraPos.get(1),
-                    camOrbitDist * Math.cos(t));
+            cameraPos = new Vector3(camOrbitDist * Math.sin(t), cameraPos.get(1), camOrbitDist * Math.cos(t));
             xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
 
             // update status text
@@ -270,9 +267,6 @@ public class Renderer {
                 case KeyEvent.VK_F2:
                     renderingMode = RenderingMode.SOLID;
                     break;
-                case KeyEvent.VK_F3:
-                    renderingMode = RenderingMode.SOLID_TEXTURE;
-                    break;
                 default:
                     break;
             }
@@ -311,7 +305,11 @@ public class Renderer {
                 screen.swapBuffers();
                 taskMgr.triggerTasks(Event.NEW_FRAME);
             } catch (ArrayIndexOutOfBoundsException e) {
-                System.out.println("Frame skipped: encountered ArrayIndexOutOfBoundsException.");
+                new Toast.ToastSuccessful(
+                        "Renderer warning",
+                        "Frame skipped",
+                        "Encountered ArrayIndexOutOfBoundsException",
+                        Toast.SHORT_DELAY);
             }
 
             renderTime = System.currentTimeMillis() - frameTime;

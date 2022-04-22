@@ -14,4 +14,8 @@ public class SimpleShader extends Shader {
     public void shade(Fragment fragment) {
         screen.setPixel(fragment.getX(), fragment.getY(), fragment.getColor());
     }
+
+    public String getName() {
+        return "SimpleShader";
+    }
 }

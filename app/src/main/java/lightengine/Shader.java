@@ -34,4 +34,6 @@ public abstract class Shader {
         return ((fragment.getX() < 0) || (fragment.getX() >= screen.getWidth()) ||
                 (fragment.getY() < 0) || (fragment.getY() >= screen.getHeight()));
     }
+
+    public abstract String getName();
 }

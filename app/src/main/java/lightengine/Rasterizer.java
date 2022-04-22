@@ -88,8 +88,7 @@ public class Rasterizer {
         }
 
         // tracé d'un segment avec l'algo de Bresenham
-        int numAttributes = v1.getNumAttributes();
-        Fragment fragment = new Fragment(0, 0); // , numAttributes);
+        Fragment fragment = new Fragment(0, 0);
 
         boolean sym = (Math.abs(y2 - y1) > Math.abs(x2 - x1));
         if (sym) {

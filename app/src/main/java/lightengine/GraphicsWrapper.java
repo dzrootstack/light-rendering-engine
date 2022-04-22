@@ -1,10 +1,5 @@
 package lightengine;
 
-/**
- * A "virtual" screen, where only "setPixel" is available
- * (It is a JFrame, and JFrame.EXIT_ON_CLOSE is set)
- * @author smondet
- */
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Label;
@@ -24,6 +19,12 @@ import lightengine.tasks.Event;
 import lightengine.tasks.PayLoad;
 import lightengine.tasks.TaskMgr;
 
+/**
+ * A "virtual" screen, where only "setPixel" is available
+ * (It is a JFrame, and JFrame.EXIT_ON_CLOSE is set)
+ * 
+ * @author smondet
+ */
 class ImageComponent extends Component {
 
   BufferedImage renderedImage = null;
@@ -71,17 +72,7 @@ public class GraphicsWrapper {
 
   private void init() {
     backBuffer = new BufferedImage(width * pixelSize, height * pixelSize, BufferedImage.TYPE_INT_ARGB);
-
     frontBuffer = new BufferedImage(width * pixelSize, height * pixelSize, BufferedImage.TYPE_3BYTE_BGR);
-
-    /*
-     * Graphics2D gd = initial.createGraphics ();
-     * gd.setColor (Color.BLACK) ;
-     * gd.fillRect (0,0, width * pixelSize, height * pixelSize) ;
-     * gd = drawingImage.createGraphics ();
-     * gd.setColor (Color.BLACK) ;
-     * gd.fillRect (0,0, width * pixelSize, height * pixelSize) ;
-     */
 
     drawComp = new ImageComponent(frontBuffer);
     drawComp.setPreferredSize(new Dimension(width * pixelSize, height * pixelSize));
@@ -239,6 +230,9 @@ public class GraphicsWrapper {
     return height;
   }
 
+  /**
+   * Updates the size of the screen and recreates the buffers.
+   */
   public void resize(int width, int height) {
     this.width = width;
     this.height = height;
@@ -248,6 +242,11 @@ public class GraphicsWrapper {
     drawComp.setImage(frontBuffer);
   }
 
+  /**
+   * Sets the content displayed on the status bar.
+   * 
+   * @param text the text to display
+   */
   public void setStatusText(String text) {
     statusText.setText(text);
   }

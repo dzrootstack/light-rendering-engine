@@ -13,10 +13,4 @@ public enum RenderingMode {
       return "Solid";
     }
   },
-  /* solid rendering, with texture */
-  SOLID_TEXTURE {
-    public String toString() {
-      return "Solid with texture";
-    }
-  },
 }

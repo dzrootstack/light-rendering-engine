@@ -30,8 +30,9 @@ public class Texture {
      */
     public Color sample(double u, double v) {
 
-        // TODO
+        int x = Math.min(Math.max((int) (u % 1 * width), 0), width - 1);
+        int y = Math.min(Math.max((int) (v % 1 * height), 0), height - 1);
 
-        return new Color(0, 0, 0);
+        return new Color(image.getRGB(x, y));
     }
 }

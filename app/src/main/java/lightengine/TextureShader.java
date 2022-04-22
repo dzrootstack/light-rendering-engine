@@ -1,5 +1,7 @@
 package lightengine;
 
+import java.awt.Color;
+
 /**
  * Simple shader that just copy the interpolated color to the screen,
  * taking the depth of the fragment into acount.
@@ -36,9 +38,19 @@ public class TextureShader extends Shader {
         if (depth.testFragment(fragment)) {
             /* The Fragment may not have texture coordinates */
             try {
-
-                /* à compléter */
-
+                double u = fragment.getAttribute(7);
+                double v = fragment.getAttribute(8);
+                Color color = texture.sample(u, v);
+                if (combineWithBaseColor) {
+                    Color baseColor = fragment.getColor();
+                    color = new Color(
+                            (int) (baseColor.getRed() * color.getRed() / 255),
+                            (int) (baseColor.getGreen() * color.getGreen() / 255),
+                            (int) (baseColor.getBlue() * color.getBlue() / 255));
+                } else {
+                    color = new Color(color.getRed(), color.getGreen(), color.getBlue());
+                }
+                screen.setPixel(fragment.getX(), fragment.getY(), color);
             } catch (ArrayIndexOutOfBoundsException e) {
                 screen.setPixel(fragment.getX(), fragment.getY(), fragment.getColor());
             }
@@ -47,6 +59,12 @@ public class TextureShader extends Shader {
     }
 
     public void reset() {
+        depth.resize(screen.getWidth(), screen.getHeight());
         depth.clear();
+    }
+
+    @Override
+    public String getName() {
+        return "TextureShader";
     }
 }
