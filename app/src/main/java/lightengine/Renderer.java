@@ -42,7 +42,6 @@ public class Renderer {
     static float frameRate;
     static Color backgroundColor = new Color(24, 24, 33);
     static RenderingMode renderingMode = RenderingMode.WIREFRAME;
-    static boolean doOrbit = true;
 
     static Shader[] shaders;
     static Rasterizer rasterizer;
@@ -50,6 +49,7 @@ public class Renderer {
 
     // time measurement
     public static int clock;
+    public static float orbitPos = 0;
 
     static void init(String sceneFilename) throws Exception {
         taskMgr = new TaskMgr();
@@ -224,38 +224,45 @@ public class Renderer {
         // add camera orbit and status update task
         double camOrbitDist = scene.getCameraPosition().distance(scene.getCameraLookAt());
         taskMgr.addTask(Event.NEW_FRAME, payload -> {
-            if (doOrbit) {
+            // update status text
+            if (clock % 10 == 0) {
+                updateStatusText();
+            }
+        }, "status text update");
+
+        taskMgr.addTask(Event.KEY_PRESSED, payload -> {
+            Boolean update = false;
+            if (payload.getKeyCode() == KeyEvent.VK_LEFT) {
+                orbitPos -= 0.1;
+                update = true;
+            } else if (payload.getKeyCode() == KeyEvent.VK_RIGHT) {
+                orbitPos += 0.1;
+                update = true;
+            }
+
+            if (update) {
                 try {
                     // rotate around up vector
-                    double t = clock / 50.0;
                     Vector3 up = new Vector3(scene.getCameraUp());
 
                     Vector3 newCamPos = new Vector3(scene.getCameraLookAt());
                     double a = up.get(0);
                     double b = up.get(1);
-                    Vector3 rotationPlaneX = new Vector3(a != 0 ? -b / a : 0, 1, 0);
+                    Vector3 rotationPlaneX = new Vector3(a != 0 ? -b / a : 1, a != 0 ? 1 : 0, 0);
                     Vector3 rotationPlaneY = rotationPlaneX.cross(up);
                     rotationPlaneX.normalize();
                     rotationPlaneY.normalize();
-                    rotationPlaneX.scale(camOrbitDist * Math.sin(t));
-                    rotationPlaneY.scale(camOrbitDist * Math.cos(t));
+                    rotationPlaneX.scale(camOrbitDist * Math.sin(orbitPos));
+                    rotationPlaneY.scale(camOrbitDist * Math.cos(orbitPos));
                     newCamPos.add(rotationPlaneX);
                     newCamPos.add(rotationPlaneY);
 
                     xform.setLookAt(newCamPos, xform.getCameraLookAt(), xform.getCameraUp());
-
-                    // xform.setLookAt(pos, xform.getCameraLookAt(), xform.getCameraUp());
-
                 } catch (SizeMismatchException | InstantiationException e) {
                     throw new RuntimeException(e);
                 }
             }
-
-            // update status text
-            if (clock % 10 == 0) {
-                updateStatusText();
-            }
-        }, "camera orbit");
+        });
 
         // add window resize task
         taskMgr.addTask(Event.WINDOW_RESIZED, payload -> {
@@ -290,8 +297,6 @@ public class Renderer {
                 updateStatusText();
             } else if (payload.getKeyCode() == KeyEvent.VK_ESCAPE) {
                 isRunning = false;
-            } else if (payload.getKeyCode() == KeyEvent.VK_SPACE) {
-                doOrbit = !doOrbit;
             }
         }, "lighting toggle");
 

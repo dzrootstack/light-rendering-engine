@@ -6,7 +6,7 @@ steve.off
 # camera looks at:
 0.0 0.0 0.0
 # camera's y vector:
-0.0 -1.0 0.0
+-1.0 0.0 0.0
 # focal length:
 600
 # w and h (pixels):
