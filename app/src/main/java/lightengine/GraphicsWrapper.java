@@ -14,6 +14,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
+import javax.swing.JComponent;
 
 import lightengine.tasks.Event;
 import lightengine.tasks.PayLoad;
@@ -25,7 +26,7 @@ import lightengine.tasks.TaskMgr;
  * 
  * @author smondet
  */
-class ImageComponent extends Component {
+class ImageComponent extends JComponent {
 
   BufferedImage renderedImage = null;
 
@@ -259,6 +260,7 @@ public class GraphicsWrapper {
     Graphics2D gd = backBuffer.createGraphics();
     gd.setColor(c);
     gd.fillRect(0, 0, width * pixelSize, height * pixelSize);
+    gd.dispose();
   }
 
   /**
@@ -274,7 +276,7 @@ public class GraphicsWrapper {
    */
   public void swapBuffers() {
     frontBuffer = drawComp.swapImage(backBuffer);
-    frame.repaint();
+    drawComp.paintImmediately(0, 0, width * pixelSize, height * pixelSize);
   }
 
   /**

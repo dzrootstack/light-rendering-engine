@@ -38,10 +38,11 @@ public class Renderer {
     static boolean lightingEnabled;
 
     static boolean isRunning;
-    static int targetFrameRate = 5; // frames per second
+    static float targetFrameRate = 60; // frames per second
     static float frameRate;
     static Color backgroundColor = new Color(24, 24, 33);
     static RenderingMode renderingMode = RenderingMode.WIREFRAME;
+    static boolean doOrbit = true;
 
     static Shader[] shaders;
     static Rasterizer rasterizer;
@@ -222,11 +223,13 @@ public class Renderer {
         // add camera orbit task
         double camOrbitDist = scene.getCameraPosition().distance(scene.getCameraLookAt());
         taskMgr.addTask(Event.NEW_FRAME, payload -> {
-            // determine next camera pos (time-based)
-            double t = clock / 50.0;
-            Vector3 cameraPos = xform.getCameraPosition();
-            cameraPos = new Vector3(camOrbitDist * Math.sin(t), cameraPos.get(1), camOrbitDist * Math.cos(t));
-            xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
+            if (doOrbit) {
+                // determine next camera pos (time-based)
+                double t = clock / 50.0;
+                Vector3 cameraPos = xform.getCameraPosition();
+                cameraPos = new Vector3(camOrbitDist * Math.sin(t), cameraPos.get(1), camOrbitDist * Math.cos(t));
+                xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
+            }
 
             // update status text
             if (clock % 60 == 0) {
@@ -245,7 +248,7 @@ public class Renderer {
             updateStatusText();
         });
 
-        // add camera displacement task
+        // add camera displacement task and orbit toggle task
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
             if (payload.getKeyCode() == KeyEvent.VK_UP) {
                 Vector3 cameraPos = xform.getCameraPosition();
@@ -255,6 +258,16 @@ public class Renderer {
                 Vector3 cameraPos = xform.getCameraPosition();
                 cameraPos.set(cameraPos.get(0), cameraPos.get(1) - 0.3, cameraPos.get(2));
                 xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
+            } else if (payload.getKeyCode() == KeyEvent.VK_LEFT) {
+                Vector3 cameraPos = xform.getCameraPosition();
+                cameraPos.set(cameraPos.get(0) - 0.3, cameraPos.get(1), cameraPos.get(2));
+                xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
+            } else if (payload.getKeyCode() == KeyEvent.VK_RIGHT) {
+                Vector3 cameraPos = xform.getCameraPosition();
+                cameraPos.set(cameraPos.get(0) + 0.3, cameraPos.get(1), cameraPos.get(2));
+                xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
+            } else if (payload.getKeyCode() == KeyEvent.VK_SPACE) {
+                doOrbit = !doOrbit;
             }
         });
 
@@ -285,7 +298,7 @@ public class Renderer {
 
         // add shader switching task
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
-            if (payload.getKeyCode() == KeyEvent.VK_SPACE) {
+            if (payload.getKeyCode() == KeyEvent.VK_ENTER) {
                 currentShader = (currentShader + 1) % shaders.length;
                 rasterizer.setShader(shaders[currentShader]);
                 updateStatusText();
@@ -319,7 +332,7 @@ public class Renderer {
 
             // cap frame rate
             try {
-                Thread.sleep(Math.max(0, (int) (1000 / targetFrameRate - renderTime)));
+                Thread.sleep((long) Math.max(0., 1000. / targetFrameRate - renderTime));
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
