@@ -225,11 +225,29 @@ public class Renderer {
         double camOrbitDist = scene.getCameraPosition().distance(scene.getCameraLookAt());
         taskMgr.addTask(Event.NEW_FRAME, payload -> {
             if (doOrbit) {
-                // determine next camera pos (time-based)
-                double t = clock / 50.0;
-                Vector3 cameraPos = xform.getCameraPosition();
-                cameraPos = new Vector3(camOrbitDist * Math.sin(t), cameraPos.get(1), camOrbitDist * Math.cos(t));
-                xform.setLookAt(cameraPos, xform.getCameraLookAt(), xform.getCameraUp());
+                try {
+                    // rotate around up vector
+                    double t = clock / 50.0;
+                    Vector3 up = new Vector3(scene.getCameraUp());
+
+                    Vector3 newCamPos = new Vector3(scene.getCameraLookAt());
+                    double a = up.get(0);
+                    double b = up.get(1);
+                    double c = up.get(2);
+                    Vector3 rotationPlaneX = new Vector3(0, 1, a != 0 ? -b / a : 0);
+                    Vector3 rotationPlaneY = new Vector3(1, 0, a != 0 ? -c / a : 0);
+                    rotationPlaneX.scale(camOrbitDist * Math.sin(t));
+                    rotationPlaneY.scale(camOrbitDist * Math.cos(t));
+                    newCamPos.add(rotationPlaneX);
+                    newCamPos.add(rotationPlaneY);
+
+                    xform.setLookAt(newCamPos, xform.getCameraLookAt(), xform.getCameraUp());
+
+                    // xform.setLookAt(pos, xform.getCameraLookAt(), xform.getCameraUp());
+
+                } catch (SizeMismatchException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             // update status text
@@ -264,13 +282,15 @@ public class Renderer {
             updateStatusText();
         }, "rendering mode switching");
 
-        // add lighting toggle task and exit task
+        // add lighting toggle task, exit task, and orbit toggle task
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
             if (payload.getKeyCode() == KeyEvent.VK_L) {
                 setLightingEnabled(!lightingEnabled);
                 updateStatusText();
             } else if (payload.getKeyCode() == KeyEvent.VK_ESCAPE) {
                 isRunning = false;
+            } else if (payload.getKeyCode() == KeyEvent.VK_SPACE) {
+                doOrbit = !doOrbit;
             }
         }, "lighting toggle");
 

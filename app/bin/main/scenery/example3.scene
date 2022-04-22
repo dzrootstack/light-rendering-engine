@@ -1,12 +1,12 @@
 
 # object filename:
-bsodium-2021.off
+steve.off
 # camera position:
-100.0 5.0 100.0
+5.0 0.0 5.0
 # camera looks at:
 0.0 0.0 0.0
 # camera's y vector:
--1.0 0.0 0.0
+0.0 -1.0 0.0
 # focal length:
 600
 # w and h (pixels):
