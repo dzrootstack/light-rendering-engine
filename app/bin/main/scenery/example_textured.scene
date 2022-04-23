@@ -6,7 +6,7 @@ textured_facet.off
 # camera looks at:
 0.5 0.5 0.0
 # camera's y vector:
-0.0 0.0 1.0
+0.0 1.0 0.0
 # focal length (pixels):
 256
 # w and h (pixels):

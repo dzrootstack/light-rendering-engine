@@ -49,7 +49,11 @@ public class Renderer {
 
     // time measurement
     public static int clock;
+
+    // orbit
     public static float orbitPos = 0;
+    public static float orbitSpeed = 0f;
+    public static float speedLoss = 0.05f;
 
     static void init(String sceneFilename) throws Exception {
         taskMgr = new TaskMgr();
@@ -224,6 +228,30 @@ public class Renderer {
         // add camera orbit and status update task
         double camOrbitDist = scene.getCameraPosition().distance(scene.getCameraLookAt());
         taskMgr.addTask(Event.NEW_FRAME, payload -> {
+
+            orbitPos += orbitSpeed;
+            try {
+                // rotate around up vector
+                Vector3 up = new Vector3(scene.getCameraUp());
+
+                Vector3 newCamPos = new Vector3(scene.getCameraLookAt());
+                double a = up.get(0);
+                double b = up.get(1);
+                Vector3 rotationPlaneX = new Vector3(a != 0 ? -b / a : 1, a != 0 ? 1 : 0, 0);
+                Vector3 rotationPlaneY = rotationPlaneX.cross(up);
+                rotationPlaneX.normalize();
+                rotationPlaneY.normalize();
+                rotationPlaneX.scale(camOrbitDist * Math.sin(orbitPos));
+                rotationPlaneY.scale(camOrbitDist * Math.cos(orbitPos));
+                newCamPos.add(rotationPlaneX);
+                newCamPos.add(rotationPlaneY);
+
+                xform.setLookAt(newCamPos, xform.getCameraLookAt(), xform.getCameraUp());
+            } catch (SizeMismatchException | InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+            orbitSpeed -= orbitSpeed * speedLoss;
+
             // update status text
             if (clock % 10 == 0) {
                 updateStatusText();
@@ -231,37 +259,12 @@ public class Renderer {
         }, "status text update");
 
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
-            Boolean update = false;
             if (payload.getKeyCode() == KeyEvent.VK_LEFT) {
-                orbitPos -= 0.1;
-                update = true;
+                orbitSpeed -= 0.05;
             } else if (payload.getKeyCode() == KeyEvent.VK_RIGHT) {
-                orbitPos += 0.1;
-                update = true;
+                orbitSpeed += 0.05;
             }
 
-            if (update) {
-                try {
-                    // rotate around up vector
-                    Vector3 up = new Vector3(scene.getCameraUp());
-
-                    Vector3 newCamPos = new Vector3(scene.getCameraLookAt());
-                    double a = up.get(0);
-                    double b = up.get(1);
-                    Vector3 rotationPlaneX = new Vector3(a != 0 ? -b / a : 1, a != 0 ? 1 : 0, 0);
-                    Vector3 rotationPlaneY = rotationPlaneX.cross(up);
-                    rotationPlaneX.normalize();
-                    rotationPlaneY.normalize();
-                    rotationPlaneX.scale(camOrbitDist * Math.sin(orbitPos));
-                    rotationPlaneY.scale(camOrbitDist * Math.cos(orbitPos));
-                    newCamPos.add(rotationPlaneX);
-                    newCamPos.add(rotationPlaneY);
-
-                    xform.setLookAt(newCamPos, xform.getCameraLookAt(), xform.getCameraUp());
-                } catch (SizeMismatchException | InstantiationException e) {
-                    throw new RuntimeException(e);
-                }
-            }
         });
 
         // add window resize task
