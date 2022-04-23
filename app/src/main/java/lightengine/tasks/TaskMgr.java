@@ -22,8 +22,9 @@ public class TaskMgr {
   /**
    * Add a task to the task manager
    * 
-   * @param event  The event to listen for
-   * @param action The action to perform
+   * @param event     The event to listen for
+   * @param graphical Whether or not the task is graphical
+   * @param action    The action to perform
    */
   public void addTask(Event event, Consumer<PayLoad> action) {
     initRecord(event);
@@ -33,9 +34,10 @@ public class TaskMgr {
   /**
    * Add a task to the task manager
    * 
-   * @param event  The event to listen for
-   * @param action The action to perform
-   * @param name   The name of the task
+   * @param event     The event to listen for
+   * @param graphical Whether or not the task is graphical
+   * @param action    The action to perform
+   * @param name      The name of the task
    */
   public void addTask(Event event, Consumer<PayLoad> action, String name) {
     initRecord(event);

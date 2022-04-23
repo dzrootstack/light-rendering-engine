@@ -1,0 +1,19 @@
+
+# object filename:
+airplane.off
+# camera position:
+0.0 -3500.0 0.0
+# camera looks at:
+0.0 0.0 0.0
+# camera's y vector:
+0.0 0.0 -1.0
+# focal length:
+900
+# w and h (pixels):
+1600 900
+# ambient light intensity Ia
+0.1
+# point light : 3D coordinates and ligth intensity (x, y, z, Id)
+300.0 8000.0 0.0 6.0
+# object material parameters (Ka, Kd, Ks, s)
+0.5 0.5 0.5 1.0

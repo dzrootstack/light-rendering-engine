@@ -4,29 +4,28 @@ import re
 
 VERT_PATTERN = re.compile("[-]?\d*\.\d* [-]?\d*\.\d* [-]?\d*\.\d*")
 COLOR_CONTROL_POINTS = [
-    ([2, 5, 0], [1.0, 0.3, 0.0]),  # red
-    ([-4, 1, 2], [0.5, 1.0, 0.0]),  # green
-    ([-3, -4, -1], [0.0, 0.2, 1.0]),  # blue
+    ([-1764, -1560, -168], [0.823, 0.062, 0.878]),
+    ([1079, 1560, 639], [0.011, 0.925, 0.988]),
 ]
 
 
 def get_color(vert):
     color = [0, 0, 0]
-    distances = []
+    sq_distances = []
     colors = []
-    for control_point, color in COLOR_CONTROL_POINTS:
-        distances.append(math.sqrt(
+    for control_point, control_color in COLOR_CONTROL_POINTS:
+        sq_distances.append(
             (vert[0] - control_point[0])**2 +
             (vert[1] - control_point[1])**2 +
             (vert[2] - control_point[2])**2
-        ))
-        colors.append(color)
+        )
+        colors.append(control_color)
     # the color of the vertex will be an interpolation of the colors of the
     # control points
     for i in range(3):
         color[i] = sum([
-            colors[j][i] * (distances[j] / sum(distances))
-            for j in range(len(distances))
+            colors[j][i] * (sq_distances[j] / sum(sq_distances))
+            for j in range(len(sq_distances))
         ])
     return color
 
@@ -58,6 +57,17 @@ def convert(input_filename, output_filename):
                         primitives.append(prim)
                     except ValueError:
                         pass
+
+            # find model bounding box
+            min_x = min(vert[0] for vert in vertices)
+            max_x = max(vert[0] for vert in vertices)
+            min_y = min(vert[1] for vert in vertices)
+            max_y = max(vert[1] for vert in vertices)
+            min_z = min(vert[2] for vert in vertices)
+            max_z = max(vert[2] for vert in vertices)
+            print(f"Model bounding box: {min_x}, {min_y}, {min_z} -> "
+                  f"{max_x}, {max_y}, {max_z}")
+
             # append colors and write to output file
             for vert in vertices:
                 color = get_color(vert)

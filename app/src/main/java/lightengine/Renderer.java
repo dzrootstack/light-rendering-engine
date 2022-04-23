@@ -11,6 +11,7 @@ import com.kingaspx.toast.util.Toast;
 
 import lightengine.algebra.SizeMismatchException;
 import lightengine.algebra.Vector;
+import lightengine.algebra.Vector2;
 import lightengine.algebra.Vector3;
 import lightengine.tasks.Event;
 import lightengine.tasks.TaskMgr;
@@ -26,7 +27,7 @@ public class Renderer {
     // camera settings
     static double fov = Math.PI / 2;
     static double near = 0.1;
-    static double far = 100.0;
+    static double far = 10000.0;
     static double aspect = 1;
 
     static Scene scene;
@@ -51,9 +52,10 @@ public class Renderer {
     public static int clock;
 
     // orbit
-    public static float orbitPos = 0;
-    public static float orbitSpeed = 0f;
-    public static float speedLoss = 0.05f;
+    public static Vector2 orbitPos = new Vector2(Math.PI, 0);
+    public static Vector2 orbitSpeed = new Vector2(0, 0);
+    public static float friction = 0.05f;
+    public static float acceleration = 0.005f;
 
     static void init(String sceneFilename) throws Exception {
         taskMgr = new TaskMgr();
@@ -229,10 +231,11 @@ public class Renderer {
         double camOrbitDist = scene.getCameraPosition().distance(scene.getCameraLookAt());
         taskMgr.addTask(Event.NEW_FRAME, payload -> {
 
-            orbitPos += orbitSpeed;
             try {
+                orbitPos.add(orbitSpeed);
+
                 // rotate around up vector
-                Vector3 up = new Vector3(scene.getCameraUp());
+                Vector3 up = new Vector3(xform.getCameraUp());
 
                 Vector3 newCamPos = new Vector3(scene.getCameraLookAt());
                 double a = up.get(0);
@@ -241,16 +244,18 @@ public class Renderer {
                 Vector3 rotationPlaneY = rotationPlaneX.cross(up);
                 rotationPlaneX.normalize();
                 rotationPlaneY.normalize();
-                rotationPlaneX.scale(camOrbitDist * Math.sin(orbitPos));
-                rotationPlaneY.scale(camOrbitDist * Math.cos(orbitPos));
+                rotationPlaneX.scale(camOrbitDist * Math.sin(orbitPos.getX()) * Math.cos(orbitPos.getY()));
+                rotationPlaneY.scale(camOrbitDist * Math.cos(orbitPos.getX()) * Math.cos(orbitPos.getY()));
+                up.scale(camOrbitDist * Math.sin(orbitPos.getY()));
                 newCamPos.add(rotationPlaneX);
                 newCamPos.add(rotationPlaneY);
+                newCamPos.add(up);
 
                 xform.setLookAt(newCamPos, xform.getCameraLookAt(), xform.getCameraUp());
             } catch (SizeMismatchException | InstantiationException e) {
                 throw new RuntimeException(e);
             }
-            orbitSpeed -= orbitSpeed * speedLoss;
+            orbitSpeed.scale(1 - friction);
 
             // update status text
             if (clock % 10 == 0) {
@@ -259,10 +264,18 @@ public class Renderer {
         }, "status text update");
 
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
-            if (payload.getKeyCode() == KeyEvent.VK_LEFT) {
-                orbitSpeed -= 0.05;
-            } else if (payload.getKeyCode() == KeyEvent.VK_RIGHT) {
-                orbitSpeed += 0.05;
+            try {
+                if (payload.getKeyCode() == KeyEvent.VK_LEFT) {
+                    orbitSpeed.add(new Vector2(-acceleration, 0));
+                } else if (payload.getKeyCode() == KeyEvent.VK_RIGHT) {
+                    orbitSpeed.add(new Vector2(acceleration, 0));
+                } else if (payload.getKeyCode() == KeyEvent.VK_UP) {
+                    orbitSpeed.add(new Vector2(0, -acceleration));
+                } else if (payload.getKeyCode() == KeyEvent.VK_DOWN) {
+                    orbitSpeed.add(new Vector2(0, acceleration));
+                }
+            } catch (SizeMismatchException e) {
+                throw new RuntimeException(e);
             }
 
         });
