@@ -34,7 +34,7 @@ public class TextureShader extends Shader {
         this.combineWithBaseColor = combineWithBaseColor;
     }
 
-    public void shade(Fragment fragment) {
+    synchronized public void shade(Fragment fragment) {
         if (depth.testFragment(fragment)) {
             /* The Fragment may not have texture coordinates */
             try {

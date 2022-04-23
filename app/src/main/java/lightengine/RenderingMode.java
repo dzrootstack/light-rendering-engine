@@ -7,10 +7,22 @@ public enum RenderingMode {
       return "Wireframe";
     }
   },
-  /* solid rendering, no lighting */
+  /* wireframe rendering, multithreaded */
+  WIREFRAME_MT {
+    public String toString() {
+      return "Wireframe MT";
+    }
+  },
+  /* solid rendering */
   SOLID {
     public String toString() {
       return "Solid";
+    }
+  },
+  /* solid rendering, multithreaded */
+  SOLID_MT {
+    public String toString() {
+      return "Solid Multithreaded";
     }
   },
 }

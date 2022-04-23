@@ -15,7 +15,7 @@ public class DepthShader extends Shader {
         depth = new DepthBuffer(screen.getWidth(), screen.getHeight());
     }
 
-    public void shade(Fragment fragment) {
+    synchronized public void shade(Fragment fragment) {
         if (depth.testFragment(fragment)) {
             screen.setPixel(fragment.getX(), fragment.getY(), fragment.getColor());
             depth.writeFragment(fragment);

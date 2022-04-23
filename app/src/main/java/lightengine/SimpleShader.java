@@ -11,7 +11,7 @@ public class SimpleShader extends Shader {
         super(screen);
     }
 
-    public void shade(Fragment fragment) {
+    synchronized public void shade(Fragment fragment) {
         screen.setPixel(fragment.getX(), fragment.getY(), fragment.getColor());
     }
 

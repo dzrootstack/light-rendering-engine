@@ -3,6 +3,7 @@ package lightengine;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import lightengine.algebra.SizeMismatchException;
 import lightengine.algebra.Vector3;
@@ -19,10 +20,12 @@ public class Lighting {
     private class Light {
         public int type = NONE;
         public double[] params;
+        public UUID id;
 
         public Light(int type, double[] params) {
             this.type = type;
             this.params = params;
+            this.id = UUID.randomUUID();
         }
     }
 

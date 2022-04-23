@@ -3,6 +3,12 @@ package lightengine;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -39,10 +45,12 @@ public class Renderer {
     static boolean lightingEnabled;
 
     static boolean isRunning;
-    static float targetFrameRate = 60; // frames per second
+    static float targetFrameRate = 360; // frames per second
     static float frameRate;
     static Color backgroundColor = new Color(24, 24, 33);
     static RenderingMode renderingMode = RenderingMode.WIREFRAME;
+    // executor service for multithreading
+    static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     static Shader[] shaders;
     static Rasterizer rasterizer;
@@ -97,6 +105,12 @@ public class Renderer {
                 break;
             case SOLID:
                 renderSolid();
+                break;
+            case SOLID_MT:
+                renderSolidMT();
+                break;
+            case WIREFRAME_MT:
+                renderWireframeMT();
                 break;
             default:
                 throw new RuntimeException("Unknown rendering mode");
@@ -163,6 +177,31 @@ public class Renderer {
         }
     }
 
+    static void renderWireframeMT() {
+        Fragment[] fragment = projectVertices();
+        int[] faces = mesh.getFaces();
+
+        final List<Future<Void>> futures = new ArrayList<>();
+        for (int i = 0; i < 3 * mesh.getNumFaces(); i += 3) {
+            for (int j = 0; j < 3; j++) {
+                Fragment v1 = fragment[faces[i + j]];
+                Fragment v2 = fragment[faces[i + ((j + 1) % 3)]];
+                Future<Void> future = executor.submit(() -> {
+                    rasterizer.rasterizeEdge(v1, v2);
+                    return null;
+                });
+                futures.add(future);
+            }
+        }
+        try {
+            for (Future<Void> future : futures) {
+                future.get();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static void renderSolid() {
         Fragment[] fragments = projectVertices();
         int[] faces = mesh.getFaces();
@@ -173,6 +212,31 @@ public class Renderer {
             Fragment v3 = fragments[faces[i + 2]];
 
             rasterizer.rasterizeFace(v1, v2, v3);
+        }
+    }
+
+    static void renderSolidMT() {
+        Fragment[] fragments = projectVertices();
+        int[] faces = mesh.getFaces();
+
+        final List<Future<Void>> futures = new ArrayList<>();
+        for (int i = 0; i < 3 * mesh.getNumFaces(); i += 3) {
+            Fragment v1 = fragments[faces[i]];
+            Fragment v2 = fragments[faces[i + 1]];
+            Fragment v3 = fragments[faces[i + 2]];
+
+            Future<Void> future = executor.submit(() -> {
+                rasterizer.rasterizeFace(v1, v2, v3);
+                return null;
+            });
+            futures.add(future);
+        }
+        try {
+            for (Future<Void> future : futures) {
+                future.get();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -299,6 +363,12 @@ public class Renderer {
                     break;
                 case KeyEvent.VK_F2:
                     renderingMode = RenderingMode.SOLID;
+                    break;
+                case KeyEvent.VK_F3:
+                    renderingMode = RenderingMode.WIREFRAME_MT;
+                    break;
+                case KeyEvent.VK_F4:
+                    renderingMode = RenderingMode.SOLID_MT;
                     break;
                 default:
                     break;

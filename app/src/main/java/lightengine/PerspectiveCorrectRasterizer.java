@@ -30,8 +30,6 @@ public class PerspectiveCorrectRasterizer extends Rasterizer {
         int xmax = Math.max(v1.getX(), Math.max(v2.getX(), v3.getX()));
         int ymax = Math.max(v1.getY(), Math.max(v2.getY(), v3.getY()));
 
-        // TODO: implement multithreaded rasterization
-
         Fragment fragment = new Fragment(0, 0);
         int numAttributes = fragment.getNumAttributes();
         try {
