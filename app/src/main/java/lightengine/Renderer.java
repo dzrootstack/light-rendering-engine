@@ -334,9 +334,9 @@ public class Renderer {
                 } else if (payload.getKeyCode() == KeyEvent.VK_RIGHT) {
                     orbitSpeed.add(new Vector2(acceleration, 0));
                 } else if (payload.getKeyCode() == KeyEvent.VK_UP) {
-                    orbitSpeed.add(new Vector2(0, -acceleration));
-                } else if (payload.getKeyCode() == KeyEvent.VK_DOWN) {
                     orbitSpeed.add(new Vector2(0, acceleration));
+                } else if (payload.getKeyCode() == KeyEvent.VK_DOWN) {
+                    orbitSpeed.add(new Vector2(0, -acceleration));
                 }
             } catch (SizeMismatchException e) {
                 throw new RuntimeException(e);
