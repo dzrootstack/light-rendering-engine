@@ -1,20 +1,19 @@
 package lightengine;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Label;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.Label;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JFrame;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 
 import lightengine.tasks.Event;
 import lightengine.tasks.PayLoad;

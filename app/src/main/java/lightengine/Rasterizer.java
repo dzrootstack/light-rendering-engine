@@ -19,6 +19,8 @@ public class Rasterizer {
 
     Shader shader;
 
+    double eps = 1e-3;
+
     public Rasterizer(Shader shader) {
         this.shader = shader;
     }
@@ -83,7 +85,9 @@ public class Rasterizer {
         for (int i = -size; i <= size; i++) {
             for (int j = -size; j <= size; j++) {
                 f.setPosition(x1 + i, y1 + j);
-                shader.shade(f);
+                if (!shader.isClipped(f)) {
+                    shader.shade(f);
+                }
             }
         }
 
@@ -138,17 +142,17 @@ public class Rasterizer {
             // envoi du fragment au shader
             fragment.setPosition(x, y);
 
-            if (!shader.isClipped(fragment)) {
+            // remove this condition to solve the bug
+            // if (!shader.isClipped(fragment)) {
 
-                // interpolation des attributs
-                interpolate2(v1, v2, fragment);
-                if (sym) {
-                    swapXAndY(fragment);
-                }
-                shader.shade(fragment);
+            // interpolation des attributs
+            interpolate2(v1, v2, fragment);
+            if (sym) {
+                swapXAndY(fragment);
             }
+            shader.shade(fragment);
+            // }
         }
-
     }
 
     static double triangleArea(Fragment v1, Fragment v2, Fragment v3) {
@@ -207,13 +211,14 @@ public class Rasterizer {
         int ymax = Math.max(Math.max(v1.getY(), v2.getY()), v3.getY());
 
         try {
+            Fragment f = new Fragment(0, 0);
             for (int x = xmin; x <= xmax; x++) {
                 for (int y = ymin; y <= ymax; y++) {
-                    Fragment f = new Fragment(x, y);
+                    f.setPosition(x, y);
                     Vector barycentricCoords = C.multiply(new Vector3(1, x, y));
                     if (!shader.isClipped(f)) {
-                        if (barycentricCoords.get(0) >= 0 && barycentricCoords.get(1) >= 0
-                                && barycentricCoords.get(2) >= 0) {
+                        if (barycentricCoords.get(0) >= -eps && barycentricCoords.get(1) >= -eps
+                                && barycentricCoords.get(2) >= -eps) {
                             interpolate3(v1, v2, v3, f, barycentricCoords);
                             shader.shade(f);
                         }

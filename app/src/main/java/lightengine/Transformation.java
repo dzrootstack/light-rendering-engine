@@ -36,13 +36,6 @@ public class Transformation {
             cameraUp = up;
 
             // compute rotation
-
-            // new API
-            // Vector3 z = (Vector3) cam.readOnly.sub(lookAt).readOnly.normalize();
-            // Vector3 x = (Vector3) up.cross(z).readOnly.normalize();
-            // Vector3 y = z.cross(x);
-
-            // old API
             Vector3 z = new Vector3(lookAt);
             z.sub(cam);
             z.normalize();

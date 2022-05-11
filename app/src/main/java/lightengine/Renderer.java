@@ -32,7 +32,7 @@ public class Renderer {
 
     // camera settings
     static double fov = Math.PI / 2;
-    static double near = 0.1;
+    static double near = 0.01;
     static double far = 10000.0;
     static double aspect = 1;
 
@@ -45,7 +45,7 @@ public class Renderer {
     static boolean lightingEnabled;
 
     static boolean isRunning;
-    static float targetFrameRate = 360; // frames per second
+    static float targetFrameRate = 60; // frames per second
     static float frameRate;
     static Color backgroundColor = new Color(24, 24, 33);
     static RenderingMode renderingMode = RenderingMode.WIREFRAME;
@@ -57,7 +57,7 @@ public class Renderer {
     static int currentShader = 0;
 
     // time measurement
-    public static int clock;
+    public static int clock; // TODO: should be an unsigned int
 
     // orbit
     public static Vector2 orbitPos = new Vector2(Math.PI, 0);
@@ -82,7 +82,7 @@ public class Renderer {
         xform.setLookAt(scene.getCameraPosition(),
                 scene.getCameraLookAt(),
                 scene.getCameraUp());
-        xform.setProjection(fov, aspect, near, far);
+        xform.setProjection(fov, scene.getScreenW() / scene.getScreenH(), near, far);
         xform.setCalibration(scene.getCameraFocal(), scene.getScreenW(), scene.getScreenH());
 
         lighting = new Lighting();
@@ -294,7 +294,6 @@ public class Renderer {
         // add camera orbit and status update task
         double camOrbitDist = scene.getCameraPosition().distance(scene.getCameraLookAt());
         taskMgr.addTask(Event.NEW_FRAME, payload -> {
-
             try {
                 orbitPos.add(orbitSpeed);
 
@@ -347,6 +346,8 @@ public class Renderer {
         // add window resize task
         taskMgr.addTask(Event.WINDOW_RESIZED, payload -> {
             int[] size = payload.getIntArray();
+
+            xform.setProjection(fov, scene.getScreenW() / scene.getScreenH(), near, far);
             xform.setCalibration(scene.getCameraFocal(), size[0], size[1]);
             screen.resize(size[0], size[1]);
             for (Shader s : shaders) {
@@ -376,7 +377,7 @@ public class Renderer {
             updateStatusText();
         }, "rendering mode switching");
 
-        // add lighting toggle task, exit task, and orbit toggle task
+        // add lighting toggle task, exit task
         taskMgr.addTask(Event.KEY_PRESSED, payload -> {
             if (payload.getKeyCode() == KeyEvent.VK_L) {
                 setLightingEnabled(!lightingEnabled);
