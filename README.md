@@ -41,7 +41,7 @@ A380 plane model rendered in solid mode, with lighting enabled.
 
 ## Importing custom models
 
-The `*.off` files available in the `app/src/main/resources/scenery` directory are modified versions of the generic [OFF file format](https://en.wikipedia.org/wiki/OFF_file_format). Conversion from the standard format to the modified one is done by the `off_converter.py` script, which can be found in the `app/scripts/` directory.
+The `*.off` files available in the `app/src/main/resources/scenery` directory are modified versions of the generic [OFF file format](https://en.wikipedia.org/wiki/OFF_(file_format)). Conversion from the standard format to the modified one is done by the `off_converter.py` script, which can be found in the `app/scripts/` directory.
 
 Usage:
 ```bash
