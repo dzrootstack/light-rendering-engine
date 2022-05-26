@@ -39,6 +39,15 @@ A380 plane model rendered in solid mode, with lighting disabled.
 A380 plane model rendered in solid mode, with lighting enabled.
 ![Plane solid + lighting](docs/res/plane_lighting.png)
 
+## Importing custom models
+
+The `*.off` files available in the `app/src/main/resources/scenery` directory are modified versions of the generic [OFF file format](https://en.wikipedia.org/wiki/OFF_file_format). Conversion from the standard format to the modified one is done by the `off_converter.py` script, which can be found in the `app/scripts/` directory.
+
+Usage:
+```bash
+python3 app/scripts/off_converter.py <input_file> <output_file>
+```
+
 ## Disclaimer
 
 This project was carried out as part of the Computer rendering course at [ENSEEIHT](https://www.enseeiht.fr/). I do not have complete ownership of the code, so please be careful when reusing it.
