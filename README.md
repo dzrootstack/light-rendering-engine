@@ -28,16 +28,16 @@ The multi-threaded rendering modes are purely experimental, and have turned out 
 ## Screenshots
 
 Blender monkey "Suzanne" rendered in wireframe mode, with lighting enabled.
-![Suzanne wireframe + lighting](docs%5Cres%5Cmonkey_wf.png)
+![Suzanne wireframe + lighting](docs/res/monkey_wf.png)
 
 Blender monkey "Suzanne" rendered in solid mode, with lighting enabled.
-![Suzanne solid + lighting](docs%5Cres%5Cmonkey_lighting.png)
+![Suzanne solid + lighting](docs/res/monkey_lighting.png)
 
 A380 plane model rendered in solid mode, with lighting disabled.
-![Plane solid](docs%5Cres%5Cplane_solid.png)
+![Plane solid](docs/res/plane_solid.png)
 
 A380 plane model rendered in solid mode, with lighting enabled.
-![Plane solid + lighting](docs%5Cres%5Cplane_lighting.png)
+![Plane solid + lighting](docs/res/plane_lighting.png)
 
 ## Disclaimer
 
